@@ -4,14 +4,20 @@ tg?.expand();
 try { tg?.setHeaderColor('#050505'); tg?.setBackgroundColor('#050505'); } catch (_) {}
 
 const initData = tg?.initData || '';
+const PHOTO = {
+  woman: 'https://images.unsplash.com/photo-1668421763548-2941326cbf68?auto=format&fit=crop&w=900&q=82',
+  dog: 'https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=900&q=82',
+  cat: 'https://images.unsplash.com/photo-1652130559817-ae377e23628b?auto=format&fit=crop&w=900&q=82',
+};
+const servicePhotos={1:PHOTO.dog,2:PHOTO.cat,3:PHOTO.dog,4:PHOTO.dog,5:PHOTO.cat,6:PHOTO.dog};
 const sitters = [
-  {id:1,name:'Алина',rating:5.0,reviews:124,exp:'3 года',area:'Центр',distance:1.2,price:700,image:'asset-1.webp',walks:'280+',about:'Люблю собак и умею находить к ним подход. Всегда на связи и после каждой услуги отправляю подробный отчёт.',pets:['asset-4.webp','pet-premium.webp','hero-dog.webp','asset-5.webp']},
-  {id:2,name:'Екатерина',rating:4.9,reviews:98,exp:'4 года',area:'Прозивка',distance:2.1,price:800,image:'asset-2.webp',walks:'320+',about:'Работаю с активными собаками, люблю длинные маршруты и спокойную коммуникацию с хозяином.',pets:['asset-5.webp','asset-4.webp','hero-dog.webp','pet-premium.webp']},
-  {id:3,name:'Мария',rating:5.0,reviews:76,exp:'5 лет',area:'Mali Bajmok',distance:2.8,price:900,image:'asset-3.webp',walks:'410+',about:'Домашняя передержка и спокойный уход без клеток. Подходит для тревожных питомцев.',pets:['hero-dog.webp','pet-premium.webp','asset-4.webp','asset-5.webp']},
+  {id:1,name:'Алина',rating:5.0,reviews:124,exp:'3 года',area:'Центр',distance:1.2,price:700,free:true,image:PHOTO.woman,walks:'280+',about:'Люблю собак и умею находить к ним подход. Всегда на связи и после каждой услуги отправляю подробный отчёт.',pets:[PHOTO.dog,PHOTO.cat,PHOTO.dog,PHOTO.cat]},
+  {id:2,name:'Екатерина',rating:4.9,reviews:98,exp:'4 года',area:'Прозивка',distance:2.1,price:800,free:false,image:PHOTO.woman,walks:'320+',about:'Работаю с активными собаками, люблю длинные маршруты и спокойную коммуникацию с хозяином.',pets:[PHOTO.cat,PHOTO.dog,PHOTO.dog,PHOTO.cat]},
+  {id:3,name:'Мария',rating:5.0,reviews:76,exp:'5 лет',area:'Mali Bajmok',distance:2.8,price:900,free:true,image:PHOTO.woman,walks:'410+',about:'Домашняя передержка и спокойный уход без клеток. Подходит для тревожных питомцев.',pets:[PHOTO.dog,PHOTO.cat,PHOTO.dog,PHOTO.cat]},
 ];
 const reviews = [
-  {name:'Мария',date:'12 сентября 2026',text:'Очень внимательная работа. После прогулки сразу получила подробный отчёт и фотографии.',image:'asset-2.webp'},
-  {name:'Иван',date:'5 сентября 2026',text:'Питомец вернулся спокойный и довольный. Удобный сервис, понятный статус заказа и хороший отчёт.',image:'asset-3.webp'},
+  {name:'Мария',date:'12 сентября 2026',text:'Очень внимательная работа. После прогулки сразу получила подробный отчёт и фотографии.',image:PHOTO.woman},
+  {name:'Иван',date:'5 сентября 2026',text:'Питомец вернулся спокойный и довольный. Удобный сервис, понятный статус заказа и хороший отчёт.',image:PHOTO.woman},
 ];
 const serviceCategories = {1:'pet',2:'home',3:'home',4:'pet',5:'home',6:'extra'};
 let selectedService = 1;
@@ -48,7 +54,16 @@ function showView(view){
   window.scrollTo({top:0,behavior:'instant'});
 }
 function completeOnboarding(){localStorage.setItem('dh_onboarded_v6','1');showView('home')}
+function hydratePhotos(){
+  const onboarding=document.querySelector('.onboarding>img'); if(onboarding) onboarding.src=PHOTO.woman;
+  const hero=document.querySelector('.hero-photo'); if(hero) hero.src=PHOTO.woman;
+  const tile=document.querySelector('.tile.wide img'); if(tile) tile.src=PHOTO.dog;
+  const pet=document.querySelector('.pet-pick img'); if(pet) pet.src=PHOTO.dog;
+  const chat=document.querySelector('.chat-head img'); if(chat) chat.src=PHOTO.woman;
+  const report=document.querySelectorAll('.report-photos img'); report.forEach((img,i)=>img.src=i===1?PHOTO.cat:PHOTO.dog);
+}
 async function boot(){
+  hydratePhotos();
   const me=await api('/api/me');
   document.getElementById('profileName').textContent=me.first_name||me.username||'Пользователь';
   const savedCity=localStorage.getItem('dh_city'); if(savedCity) document.getElementById('cityLabel').textContent=savedCity;
@@ -59,7 +74,7 @@ async function renderServices(filter='all'){
   const items=await api('/api/catalog');
   const rows=filter==='all'?items:items.filter(x=>serviceCategories[x.id]===filter);
   const target=document.getElementById('serviceList');
-  target.innerHTML=rows.map(x=>`<div class="service" onclick="openBooking(${x.id})"><img class="service-thumb" src="/assets/${x.image}" alt="${x.name}"><div><div class="service-name">${x.name}</div><div class="service-desc">${x.desc}</div></div><div class="service-go"><div><div class="service-price">От ${x.price} ₽</div></div><i class="fa-solid fa-chevron-right"></i></div></div>`).join('') || '<div class="notice">В этой категории пока нет услуг</div>';
+  target.innerHTML=rows.map(x=>`<div class="service" onclick="openBooking(${x.id})"><img class="service-thumb" src="${servicePhotos[x.id]||PHOTO.dog}" alt="${x.name}"><div><div class="service-name">${x.name}</div><div class="service-desc">${x.desc}</div></div><div class="service-go"><div><div class="service-price">От ${x.price} ₽</div></div><i class="fa-solid fa-chevron-right"></i></div></div>`).join('') || '<div class="notice">В этой категории пока нет услуг</div>';
 }
 function filterServices(filter,el){document.querySelectorAll('#serviceFilters .pill').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderServices(filter)}
 
@@ -69,20 +84,21 @@ function renderSitters(){
   if(sitterSort==='rating') rows.sort((a,b)=>b.rating-a.rating);
   if(sitterSort==='price') rows.sort((a,b)=>a.price-b.price);
   if(sitterSort==='near') rows.sort((a,b)=>a.distance-b.distance);
-  document.getElementById('sitterList').innerHTML=rows.map(s=>`<div class="sitter" onclick="openSitter(${s.id})"><div class="sitter-top"><img class="sitter-avatar" src="/assets/${s.image}"><div><div class="sitter-name">${s.name}</div><div class="rating"><i class="fa-solid fa-star"></i><span>${s.rating.toFixed(1)} (${s.reviews})</span></div><div class="sitter-meta">Выгул · Передержка</div><div class="sitter-meta">Суботица, ${s.area}</div></div><div><i class="${isFavorite(s.id)?'fa-solid':'fa-regular'} fa-heart heart" onclick="event.stopPropagation();toggleFavorite(${s.id});renderSitters()"></i><div class="sitter-meta" style="margin-top:17px">${s.distance} км</div></div></div><div class="sitter-gallery">${s.pets.map(p=>`<img src="/assets/${p}">`).join('')}</div></div>`).join('') || '<div class="notice">Ничего не найдено</div>';
+  if(sitterSort==='free') rows=rows.filter(s=>s.free);
+  document.getElementById('sitterList').innerHTML=rows.map(s=>`<div class="sitter" onclick="openSitter(${s.id})"><div class="sitter-top"><img class="sitter-avatar" src="${s.image}"><div><div class="sitter-name">${s.name}</div><div class="rating"><i class="fa-solid fa-star"></i><span>${s.rating.toFixed(1)} (${s.reviews})</span></div><div class="sitter-meta">Выгул · Передержка</div><div class="sitter-meta">Суботица, ${s.area}</div></div><div><i class="${isFavorite(s.id)?'fa-solid':'fa-regular'} fa-heart heart" onclick="event.stopPropagation();toggleFavorite(${s.id});renderSitters()"></i><div class="sitter-meta" style="margin-top:17px">${s.distance} км</div></div></div><div class="sitter-gallery">${s.pets.map(p=>`<img src="${p}">`).join('')}</div></div>`).join('') || '<div class="notice">Ничего не найдено</div>';
 }
 function sortSitters(sort,el){sitterSort=sort;document.querySelectorAll('#sitterFilters .pill').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderSitters()}
 function openSitter(id){
   selectedSitterId=id; const s=sitters.find(x=>x.id===id);
   document.getElementById('sitterFavoriteIcon').className=`${isFavorite(id)?'fa-solid':'fa-regular'} fa-heart`;
-  document.getElementById('sitterProfile').innerHTML=`<div class="sitter-cover"><img src="/assets/${s.image}"><div class="sitter-cover-copy"><div class="sitter-cover-name">${s.name}</div><div class="rating"><i class="fa-solid fa-star"></i><span>${s.rating.toFixed(1)} (${s.reviews} отзывов)</span></div><div class="sitter-stats"><span>Опыт: ${s.exp}</span><span>Выгулено собак: ${s.walks}</span></div></div></div><div class="about"><h3>Обо мне</h3><p>${s.about}</p></div><div class="mini-features"><div class="mini-feature"><i class="fa-solid fa-camera"></i><span>Фотоотчёт</span></div><div class="mini-feature"><i class="fa-regular fa-clock"></i><span>30 / 60 / 90 мин</span></div><div class="mini-feature"><i class="fa-solid fa-location-dot"></i><span>${s.area}</span></div></div><button class="btn btn-gold btn-wide" style="margin-top:9px" onclick="openBooking(1)">Забронировать прогулку</button><button class="btn btn-dark btn-wide" style="margin-top:7px" onclick="showView('reviews')">Отзывы</button>`;
+  document.getElementById('sitterProfile').innerHTML=`<div class="sitter-cover"><img src="${s.image}"><div class="sitter-cover-copy"><div class="sitter-cover-name">${s.name}</div><div class="rating"><i class="fa-solid fa-star"></i><span>${s.rating.toFixed(1)} (${s.reviews} отзывов)</span></div><div class="sitter-stats"><span>Опыт: ${s.exp}</span><span>Выгулено собак: ${s.walks}</span></div></div></div><div class="about"><h3>Обо мне</h3><p>${s.about}</p></div><div class="mini-features"><div class="mini-feature"><i class="fa-solid fa-camera"></i><span>Фотоотчёт</span></div><div class="mini-feature"><i class="fa-regular fa-clock"></i><span>30 / 60 / 90 мин</span></div><div class="mini-feature"><i class="fa-solid fa-location-dot"></i><span>${s.area}</span></div></div><button class="btn btn-gold btn-wide" style="margin-top:9px" onclick="openBooking(1)">Забронировать прогулку</button><button class="btn btn-dark btn-wide" style="margin-top:7px" onclick="showView('reviews')">Отзывы</button>`;
   showView('sitter');
 }
 function favorites(){try{return JSON.parse(localStorage.getItem('dh_favorites')||'[]')}catch(_){return[]}}
 function isFavorite(id){return favorites().includes(id)}
 function toggleFavorite(id){const list=favorites();const next=list.includes(id)?list.filter(x=>x!==id):[...list,id];localStorage.setItem('dh_favorites',JSON.stringify(next));showToast(next.includes(id)?'Добавлено в избранное':'Удалено из избранного')}
 function toggleFavoriteSelected(){toggleFavorite(selectedSitterId);document.getElementById('sitterFavoriteIcon').className=`${isFavorite(selectedSitterId)?'fa-solid':'fa-regular'} fa-heart`}
-function showFavorites(){showView('sitters');setTimeout(()=>{const fav=favorites();document.getElementById('sitterList').innerHTML=sitters.filter(s=>fav.includes(s.id)).map(s=>`<div class="sitter" onclick="openSitter(${s.id})"><div class="sitter-top"><img class="sitter-avatar" src="/assets/${s.image}"><div><div class="sitter-name">${s.name}</div><div class="rating"><i class="fa-solid fa-star"></i><span>${s.rating.toFixed(1)} (${s.reviews})</span></div><div class="sitter-meta">Суботица, ${s.area}</div></div><i class="fa-solid fa-heart heart"></i></div></div>`).join('')||'<div class="notice">Вы ещё никого не добавили в избранное</div>'},0)}
+function showFavorites(){showView('sitters');setTimeout(()=>{const fav=favorites();document.getElementById('sitterList').innerHTML=sitters.filter(s=>fav.includes(s.id)).map(s=>`<div class="sitter" onclick="openSitter(${s.id})"><div class="sitter-top"><img class="sitter-avatar" src="${s.image}"><div><div class="sitter-name">${s.name}</div><div class="rating"><i class="fa-solid fa-star"></i><span>${s.rating.toFixed(1)} (${s.reviews})</span></div><div class="sitter-meta">Суботица, ${s.area}</div></div><i class="fa-solid fa-heart heart"></i></div></div>`).join('')||'<div class="notice">Вы ещё никого не добавили в избранное</div>'},0)}
 
 function openBooking(id){selectedService=id;showView('booking');document.querySelectorAll('#bookingTypes .booking-type').forEach(x=>x.classList.toggle('active',Number(x.dataset.id)===Math.min(id,3)))}
 function selectBookingType(id,el){selectedService=id;document.querySelectorAll('#bookingTypes .booking-type').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
@@ -93,8 +109,8 @@ async function loadProfile(){const [pets,orders]=await Promise.all([api('/api/pe
 async function loadPets(){
   const pets=await api('/api/pets'); const target=document.getElementById('petsList');
   if(!pets.length){target.innerHTML='<div class="notice">Питомцы пока не добавлены</div>';return}
-  const pics=['asset-4.webp','asset-5.webp','pet-premium.webp'];
-  target.innerHTML=pets.map((p,i)=>`<button class="pet-card" onclick="showToast('Выбран питомец: ${escapeHtml(p.name)}')"><img src="/assets/${pics[i%3]}"><span><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.breed||'Порода не указана')}</small></span><i class="fa-solid fa-chevron-right"></i></button>`).join('');
+  const pics=[PHOTO.dog,PHOTO.cat,PHOTO.dog];
+  target.innerHTML=pets.map((p,i)=>`<button class="pet-card" onclick="showToast('Выбран питомец: ${escapeHtml(p.name)}')"><img src="${pics[i%3]}"><span><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.breed||'Порода не указана')}</small></span><i class="fa-solid fa-chevron-right"></i></button>`).join('');
 }
 function openPetsFromBooking(){petsReturnView='booking';showView('pets')}
 function goBackFromPets(){showView(petsReturnView||'profile');petsReturnView='profile'}
@@ -113,7 +129,7 @@ async function loadOrders(){
 function renderMessages(){document.getElementById('messages').innerHTML='<div class="msg left">Здравствуйте. Я уже рядом, через пять минут буду у вас.<time>13:32</time></div><div class="msg right">Отлично, спасибо. Бублик уже ждёт.<time>13:33</time></div>'}
 function sendMessage(){const input=document.getElementById('chatInput'),text=input.value.trim();if(!text)return;document.getElementById('messages').insertAdjacentHTML('beforeend',`<div class="msg right">${escapeHtml(text)}<time>сейчас</time></div>`);input.value='';tg?.HapticFeedback?.impactOccurred('light')}
 function toggleVoice(el){const icon=el.querySelector('i');icon.classList.toggle('fa-play');icon.classList.toggle('fa-pause');showToast(icon.classList.contains('fa-pause')?'Воспроизведение':'Пауза')}
-function renderReviews(){document.getElementById('reviewList').innerHTML=reviews.map(r=>`<div class="review"><div class="review-person"><img src="/assets/${r.image}"><div><b>${r.name}</b><small>${r.date}</small><div class="review-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div></div></div><div class="review-text">${r.text}</div><div class="review-gallery"><img src="/assets/asset-4.webp"><img src="/assets/hero-dog.webp"><img src="/assets/pet-premium.webp"></div></div>`).join('')}
+function renderReviews(){document.getElementById('reviewList').innerHTML=reviews.map(r=>`<div class="review"><div class="review-person"><img src="${r.image}"><div><b>${r.name}</b><small>${r.date}</small><div class="review-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div></div></div><div class="review-text">${r.text}</div><div class="review-gallery"><img src="${PHOTO.dog}"><img src="${PHOTO.cat}"><img src="${PHOTO.dog}"></div></div>`).join('')}
 
 function setExecutorTab(tab){executorTab=tab;document.getElementById('execAvailable').classList.toggle('active',tab==='available');document.getElementById('execMine').classList.toggle('active',tab==='mine');loadExecutor()}
 async function loadExecutor(){
@@ -131,7 +147,7 @@ function openSimple(type){
     location:['Город',`<div class="simple-list"><button class="simple-row location-option ${city()==='Суботица'?'active':''}" onclick="setCity('Суботица',this)"><i class="fa-solid fa-location-dot"></i><span class="grow"><b>Суботица</b><small>Основная зона работы</small></span><i class="fa-solid fa-chevron-right"></i></button><button class="simple-row location-option ${city()==='Баймок'?'active':''}" onclick="setCity('Баймок',this)"><i class="fa-solid fa-location-dot"></i><span class="grow"><b>Баймок</b><small>Выезд по записи</small></span><i class="fa-solid fa-chevron-right"></i></button></div>`],
     notifications:['Уведомления',toggleTemplate('Новые заказы','order_notif','fa-rectangle-list')+toggleTemplate('Сообщения ситтера','chat_notif','fa-comment')+toggleTemplate('Фотоотчёты','report_notif','fa-camera')],
     settings:['Настройки',toggleTemplate('Тактильный отклик','haptics','fa-wave-square')+toggleTemplate('Автооткрытие главной','auto_home','fa-house')+`<button class="simple-row" onclick="resetOnboarding()"><i class="fa-solid fa-rotate-left"></i><span class="grow"><b>Показать приветственный экран снова</b><small>Сбросить только onboarding</small></span><i class="fa-solid fa-chevron-right"></i></button>`],
-    payments:['Способы оплаты',`<div class="simple-list"><button id="payTelegram" class="simple-row ${payment()==='telegram'?'payment-selected':''}" onclick="setPayment('telegram')"><i class="fa-brands fa-telegram"></i><span class="grow"><b>Telegram</b><small>Оплата внутри приложения</small></span><i class="fa-solid fa-check"></i></button><button id="payCard" class="simple-row ${payment()==='card'?'payment-selected':''}" onclick="setPayment('card')"><i class="fa-regular fa-credit-card"></i><span class="grow"><b>Банковская карта</b><small>Тестовый способ оплаты</small></span><i class="fa-solid fa-check"></i></button><button class="simple-row" onclick="showToast('В тестовой версии реальные карты не сохраняются')"><i class="fa-solid fa-plus"></i><span class="grow"><b>Добавить карту</b><small>Доступно после подключения боевого эквайринга</small></span><i class="fa-solid fa-chevron-right"></i></button></div>`],
+    payments:['Способы оплаты',`<div class="simple-list"><button class="simple-row ${payment()==='telegram'?'payment-selected':''}" onclick="setPayment('telegram')"><i class="fa-brands fa-telegram"></i><span class="grow"><b>Telegram</b><small>Оплата внутри приложения</small></span><i class="fa-solid fa-check"></i></button><button class="simple-row ${payment()==='card'?'payment-selected':''}" onclick="setPayment('card')"><i class="fa-regular fa-credit-card"></i><span class="grow"><b>Банковская карта</b><small>Тестовый способ оплаты</small></span><i class="fa-solid fa-check"></i></button><button class="simple-row" onclick="showToast('В тестовой версии реальные карты не сохраняются')"><i class="fa-solid fa-plus"></i><span class="grow"><b>Добавить карту</b><small>Доступно после подключения боевого эквайринга</small></span><i class="fa-solid fa-chevron-right"></i></button></div>`],
     help:['Помощь',faqTemplate('Как оформить заказ?','Откройте услуги, выберите нужную услугу, дату, время и питомца, затем нажмите «Найти догситтера».')+faqTemplate('Как связаться с ситтером?','После назначения исполнителя в карточке заказа появляется кнопка «Чат».')+faqTemplate('Где смотреть фотоотчёт?','В текущем или завершённом заказе откройте «Детали».')],
     about:['О приложении',`<div class="simple-card"><h3>Dog's Happiness</h3><p>Тестовая Telegram Mini App для выгула, передержки и ухода за питомцами. Версия premium UI 2026.</p></div><div class="simple-card"><h3>Статус</h3><p>Работает отдельным тестовым стендом и не затрагивает боевого бота.</p></div>`],
     referral:['Пригласить друга',`<div class="simple-card"><h3>Получите 500 ₽</h3><p>Отправьте код другу. В тестовой версии награда отображается как демонстрация механики.</p><div class="referral-code"><input id="refCode" value="DOGS500" readonly><button onclick="copyReferral()">Копировать</button></div></div><button class="simple-row" onclick="shareReferral()"><i class="fa-solid fa-share-nodes"></i><span class="grow"><b>Поделиться</b><small>Открыть системное меню отправки</small></span><i class="fa-solid fa-chevron-right"></i></button>`],
