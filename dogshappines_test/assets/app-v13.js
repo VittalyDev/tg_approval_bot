@@ -1,0 +1,1 @@
+(()=>{const load=s=>new Promise((ok,fail)=>{const x=document.createElement('script');x.src=s;x.onload=ok;x.onerror=fail;document.body.append(x)});load('/assets/app-v13-core.js?v=13').then(()=>load('/assets/app-v13-chat.js?v=13')).catch(console.error)})();
