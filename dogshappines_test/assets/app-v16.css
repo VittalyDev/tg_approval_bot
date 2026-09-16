@@ -1,0 +1,143 @@
+/* v16 — cross-view polish + desktop-safe date/time controls */
+html,body{color-scheme:dark}
+button,input,select,textarea{font-family:inherit}
+button{touch-action:manipulation}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #e7b966!important;outline-offset:2px!important}
+button:disabled{cursor:not-allowed}
+
+/* Native controls must remain fully usable in Telegram Desktop and normal desktop browsers. */
+input[type=date],input[type=time],input[type=datetime-local],select{
+  color-scheme:dark;
+}
+.v16-native-picker{
+  min-height:48px!important;
+  cursor:pointer!important;
+  padding-right:44px!important;
+  position:relative;
+}
+.v16-native-picker::-webkit-calendar-picker-indicator{
+  cursor:pointer!important;
+  opacity:.95!important;
+  width:24px!important;
+  height:24px!important;
+  padding:7px!important;
+  margin-right:-4px!important;
+  filter:sepia(.45) saturate(1.6) brightness(1.35)!important;
+}
+.v16-native-picker::-webkit-datetime-edit,
+.v16-native-picker::-webkit-datetime-edit-fields-wrapper{color:#f6eee0!important}
+
+/* One consistent shell for every legacy and dynamically injected screen. */
+#app>.view:not(#view-intro):not(#view-role){width:100%;min-width:0}
+.screen-head{min-height:42px}
+.screen-head .back,.screen-head .screen-icon,.screen-head .screen-action{min-height:40px}
+.screen-head .back,.screen-head .screen-icon{min-width:40px}
+.list:empty:after{content:'Здесь пока ничего нет';display:block;padding:18px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);text-align:center;font-size:10px}
+
+/* Inputs / selects / textareas across booking, settings, reports and sheets. */
+.field,.v14-settings select,.v9-setting select{
+  min-height:46px;
+  border:1px solid var(--line)!important;
+  background:#11100f!important;
+  color:var(--text)!important;
+  border-radius:13px!important;
+}
+.field:hover,.v14-settings select:hover,.v9-setting select:hover{border-color:rgba(231,185,102,.42)!important}
+.field::placeholder,textarea::placeholder,input::placeholder{color:#776b59!important;opacity:1}
+.field-group{min-width:0}
+.field-group>label,.v15-edit-form>label,.v14-report-form>label{font-size:10px!important;letter-spacing:.01em}
+textarea.field{line-height:1.45}
+select.field,select.v16-native-picker{appearance:auto}
+
+/* Cards that could still be rendered by an older layer now match the premium UI. */
+.history-row,.executor-card,.leader-row,.review,.review-person,.report-card,.notice{
+  border-color:var(--line)!important;
+}
+.history-row,.executor-card,.leader-row,.review{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:linear-gradient(145deg,#11100d,#090806);
+  padding:12px;
+}
+.history-row{display:grid;grid-template-columns:1fr auto;gap:5px 10px;align-items:center}
+.history-row>b{font-size:12px}.history-row>small{grid-column:1/-1;color:var(--muted);font-size:9px;line-height:1.45}
+.executor-card{display:grid;gap:10px}.executor-head{display:flex;justify-content:space-between;gap:12px}.executor-head b{font-size:14px}.executor-meta{font-size:9px!important;color:var(--muted);line-height:1.45;margin-top:4px}.executor-price{font-size:15px;color:var(--gold2);font-weight:900;white-space:nowrap}
+.leader-row{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:10px}.leader-pos{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#18130c;color:var(--gold2);font-weight:900}.leader-row b{font-size:12px}.leader-row small{display:block;color:var(--muted);font-size:8px;margin-top:2px}.leader-score{font-weight:900;color:var(--gold2)}
+.review-person{display:flex;align-items:center;gap:9px;border:0!important;padding:0!important;background:transparent!important}.review-person img{width:42px;height:42px;border-radius:50%;object-fit:cover}.review-person b{font-size:11px}.review-person small{display:block;color:var(--muted);font-size:8px}.review-text{font-size:10px;line-height:1.5;color:#dbcbb3;margin-top:9px}
+
+/* Dynamic sitter / executor lists. */
+.v13-sitter-row,.v13-exec-card{transition:border-color .16s ease,transform .16s ease,background .16s ease}
+@media (hover:hover){
+  .v13-sitter-row:hover,.v13-exec-card:hover,.service:hover,.v14-order-card:hover,.v14-request-card:hover,.v14-day-order:hover,.v15-exec-cal-order:hover{border-color:rgba(231,185,102,.52)!important}
+  button:not(:disabled):hover{filter:brightness(1.05)}
+}
+
+/* Booking time slots stay clear and keyboard-friendly on desktop. */
+.v15-slot-grid{grid-template-columns:repeat(4,minmax(62px,1fr));gap:8px}
+.v15-slot{min-height:48px!important;cursor:pointer}
+.v15-slot b{font-size:12px!important}
+.v15-slot small{font-size:8px!important}
+.v15-slot:disabled{pointer-events:auto!important}
+#v15BookingSlots,#v15EditSlots{max-height:250px;overflow:auto;padding-right:2px;scrollbar-width:thin;scrollbar-color:#755b35 transparent}
+
+/* Settings should never look cramped. */
+.v14-settings{gap:10px!important}
+.v14-settings>label{min-height:58px;padding:12px!important}
+.v14-settings label span b{font-size:12px!important}
+.v14-settings label span small{font-size:9px!important}
+.v14-role-switch{padding:13px!important}.v14-role-switch button{min-height:44px}
+.v14-settings-link{min-height:54px}
+
+/* Orders: larger actions only where they matter, with sensible desktop wrapping. */
+.v14-order-actions,.v14-request-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+.v14-order-actions button,.v14-request-actions button{width:100%;min-width:0}
+.v14-order-actions button:only-child,.v14-request-actions button:only-child{grid-column:1/-1}
+
+/* Client calendar + executor calendar use the same visual language. */
+.calendar-shell{overflow:hidden}
+.calendar-grid{min-width:0}
+.v14-cal-day,.calendar-day{aspect-ratio:1/1;min-width:0}
+#view-calendar .calendar-shell,#view-executor-calendar .calendar-shell{box-shadow:0 14px 34px rgba(0,0,0,.18)}
+#view-executor-calendar .list{margin-bottom:14px}
+.v15-exec-cal-head{margin-top:15px!important}
+
+/* Home: only two subscriptions, so show both at once; services remain a slider. */
+#v9-home-tariffs .v9-scroll{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible!important;gap:9px!important}
+#v9-home-tariffs .v9-tariff{min-width:0!important;width:auto!important;flex:none!important;padding:13px!important}
+#v9-home-tariffs .v9-tariff strong{font-size:20px!important}
+#v9-home-tariffs .v9-tariff .badge{position:static!important;display:inline-flex!important;margin-bottom:6px!important}
+#v9-home-services .v9-scroll{scroll-behavior:smooth;overscroll-behavior-inline:contain}
+
+/* Sheet consistency and desktop pointer ergonomics. */
+.v14-sheet,.v15-sheet,.sheet,.v9-sheet{overscroll-behavior:contain}
+.v14-sheet-actions .btn{min-height:46px}
+.v14-sheet-head button{min-width:38px;min-height:38px}
+.v14-report-form input[type=file]{cursor:pointer}
+.v14-chat-input input{font-size:14px}
+.v14-chat-input button{min-width:44px;min-height:44px}
+
+/* Photos should not stretch or collapse. */
+img{max-width:100%}
+.v14-pet-card>img,.pet-pick img,.v15-order-pet img,.v15-edit-pet img,.v13-sitter-row img,.v13-exec-card img{background:#15110c}
+
+/* Desktop / Telegram Desktop window. */
+@media (min-width:700px){
+  #app{max-width:520px!important;padding-left:18px!important;padding-right:18px!important}
+  .bottomnav{max-width:500px!important}
+  .v14-sheet,.v15-sheet,.sheet,.v9-sheet{max-width:520px!important}
+  .hero{min-height:340px}
+  .v15-slot-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+  #v15BookingSlots,#v15EditSlots{max-height:220px}
+  .v14-order-actions,.v14-request-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .v14-order-actions button:only-child,.v14-request-actions button:only-child{grid-column:auto}
+  .calendar-shell{padding:14px}
+  .v14-cal-day{min-height:50px}
+}
+
+@media (max-width:370px){
+  .v15-slot-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #v9-home-tariffs .v9-scroll{grid-template-columns:1fr!important}
+  .v14-order-actions,.v14-request-actions{grid-template-columns:1fr!important}
+  .history-row{grid-template-columns:1fr}
+  .history-row>small{grid-column:auto}
+}
