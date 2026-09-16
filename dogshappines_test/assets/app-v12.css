@@ -1,0 +1,67 @@
+/* Dog's Happiness v12: fixed onboarding viewport + trusted sitter photo polish */
+body.v12-screen-lock{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+}
+body.v12-screen-lock #app{
+  height:100dvh!important;
+  min-height:0!important;
+  padding:6px 10px!important;
+  overflow:hidden!important;
+}
+body.v12-screen-lock #view-intro,
+body.v12-screen-lock #view-role{
+  height:calc(100dvh - 12px)!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  margin:0!important;
+}
+body.v12-screen-lock #view-intro .intro,
+body.v12-screen-lock #view-role .role-screen{
+  height:100%!important;
+  min-height:0!important;
+  max-height:100%!important;
+  margin:0!important;
+  border-radius:26px!important;
+  overflow:hidden!important;
+}
+body.v12-screen-lock #view-role .role-content{
+  padding:18px 16px!important;
+  justify-content:flex-end!important;
+}
+body.v12-screen-lock #view-role .role-card{
+  flex-shrink:0!important;
+}
+body.v12-screen-lock #view-role .role-note{
+  flex-shrink:0!important;
+}
+
+/* Keep the verified sitters card on the original premium photo. */
+#view-client-home .feature-card.wide img{
+  object-position:center center!important;
+}
+
+@media (max-height:680px){
+  body.v12-screen-lock #view-role .role-content{padding:14px 14px!important}
+  body.v12-screen-lock #view-role .role-brand{font-size:10px!important}
+  body.v12-screen-lock #view-role .role-content h1{font-size:24px!important;line-height:1!important;margin:0 0 4px!important}
+  body.v12-screen-lock #view-role .role-content>p{font-size:9px!important;line-height:1.3!important;margin:0 0 8px!important}
+  body.v12-screen-lock #view-role .role-card{grid-template-columns:42px 1fr auto!important;gap:9px!important;padding:8px 10px!important;margin-top:6px!important;border-radius:14px!important}
+  body.v12-screen-lock #view-role .role-icon{width:42px!important;height:42px!important;border-radius:13px!important}
+  body.v12-screen-lock #view-role .role-card b{font-size:12px!important;line-height:1.1!important}
+  body.v12-screen-lock #view-role .role-card small{font-size:7.5px!important;line-height:1.3!important;margin-top:2px!important}
+  body.v12-screen-lock #view-role .role-note{font-size:7.5px!important;line-height:1.35!important;margin-top:8px!important;gap:7px!important}
+}
+
+@media (max-height:560px){
+  body.v12-screen-lock #app{padding:4px 8px!important}
+  body.v12-screen-lock #view-intro,
+  body.v12-screen-lock #view-role{height:calc(100dvh - 8px)!important}
+  body.v12-screen-lock #view-role .role-content{padding:10px 12px!important}
+  body.v12-screen-lock #view-role .role-content h1{font-size:21px!important}
+  body.v12-screen-lock #view-role .role-card{grid-template-columns:38px 1fr auto!important;padding:7px 9px!important;margin-top:5px!important}
+  body.v12-screen-lock #view-role .role-icon{width:38px!important;height:38px!important}
+  body.v12-screen-lock #view-role .role-note{margin-top:6px!important;font-size:7px!important}
+}
