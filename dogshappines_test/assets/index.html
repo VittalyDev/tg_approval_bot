@@ -5,11 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
   <meta name="theme-color" content="#050505">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="/assets/app.css?v=4">
+  <link rel="stylesheet" href="/assets/app.css?v=6">
   <title>Dog's Happiness</title>
 </head>
 <body>
@@ -19,120 +16,100 @@
       <img src="/assets/asset-6.webp" alt="Dog's Happiness">
       <div class="onboarding-shade"></div>
       <div class="onboarding-copy">
-        <div>
-          <div class="wordmark">DOG’S<br>HAPPINESS</div>
-          <div class="wordmark-sub">забота, которой можно доверять</div>
-        </div>
-        <div class="onboarding-bottom">
-          <div class="onboarding-note">Проверенные догситтеры рядом с вами</div>
-          <button class="btn btn-gold btn-wide" onclick="completeOnboarding()">Начать</button>
-          <div class="dots"><span class="active"></span><span></span><span></span></div>
-        </div>
+        <div><div class="wordmark">DOG’S<br>HAPPINESS</div><div class="wordmark-sub">Забота, которой можно доверять</div></div>
+        <div class="onboarding-bottom"><div class="onboarding-note">Проверенные догситтеры рядом с вами</div><button class="btn btn-gold btn-wide" onclick="completeOnboarding()">Начать</button><div class="dots"><span class="active"></span><span></span><span></span></div></div>
       </div>
     </div>
   </section>
 
   <section id="view-home" class="view hidden">
     <div class="topbar">
-      <div class="location"><i class="fa-solid fa-location-dot"></i><div><b>Суботица</b><small>Ваш город</small></div></div>
-      <button class="top-icon"><i class="fa-regular fa-bell"></i></button>
+      <button class="location location-button" onclick="openSimple('location')"><i class="fa-solid fa-location-dot"></i><span><b id="cityLabel">Суботица</b><small>Ваш город</small></span><i class="fa-solid fa-chevron-down location-chevron"></i></button>
+      <button class="top-icon" onclick="openSimple('notifications')"><i class="fa-regular fa-bell"></i></button>
     </div>
-    <div class="hero">
-      <img class="hero-photo" src="/assets/asset-6.webp" alt="hero">
-      <div class="hero-shade"></div>
-      <div class="hero-copy">
-        <div class="hero-kicker">premium pet care</div>
-        <div class="hero-title">Забота,<br>которой<br>можно<br>доверять</div>
-        <div class="hero-text">Выгул, передержка и уход за питомцем в одном приложении.</div>
-        <button class="btn btn-gold" onclick="showView('services')">Выбрать услугу</button>
-      </div>
-    </div>
+    <div class="hero"><img class="hero-photo" src="/assets/asset-6.webp" alt="Забота о питомце"><div class="hero-shade"></div><div class="hero-copy"><div class="hero-kicker">PREMIUM PET CARE</div><div class="hero-title">Забота,<br>которой<br>можно<br>доверять</div><div class="hero-text">Выгул, передержка и уход за питомцем в одном приложении.</div><button class="btn btn-gold" onclick="showView('services')">Выбрать услугу</button></div></div>
     <div class="quick">
-      <div class="quick-item" onclick="openBooking(1)"><div class="quick-ring"><i class="fa-solid fa-person-walking"></i></div><div class="quick-label">Выгул</div></div>
-      <div class="quick-item" onclick="openBooking(2)"><div class="quick-ring"><i class="fa-solid fa-house"></i></div><div class="quick-label">Передержка</div></div>
-      <div class="quick-item" onclick="showView('sitters')"><div class="quick-ring"><i class="fa-regular fa-user"></i></div><div class="quick-label">Зооняня</div></div>
-      <div class="quick-item" onclick="openBooking(4)"><div class="quick-ring"><i class="fa-solid fa-scissors"></i></div><div class="quick-label">Груминг</div></div>
+      <button class="quick-item" onclick="openBooking(1)"><span class="quick-ring"><i class="fa-solid fa-person-walking"></i></span><span class="quick-label">Выгул</span></button>
+      <button class="quick-item" onclick="openBooking(2)"><span class="quick-ring"><i class="fa-solid fa-house"></i></span><span class="quick-label">Передержка</span></button>
+      <button class="quick-item" onclick="openBooking(3)"><span class="quick-ring"><i class="fa-regular fa-user"></i></span><span class="quick-label">Зооняня</span></button>
+      <button class="quick-item" onclick="openBooking(4)"><span class="quick-ring"><i class="fa-solid fa-scissors"></i></span><span class="quick-label">Груминг</span></button>
     </div>
     <div class="mosaic">
-      <div class="tile wide"><div class="tile-copy"><div class="tile-title">Проверенные догситтеры</div><div class="tile-text">Реальные люди с отзывами и опытом.</div></div><img src="/assets/hero-dog.webp" alt="dog"></div>
-      <div class="tile"><div class="tile-copy"><div class="tile-title">Безопасность</div><div class="tile-text">Контроль статуса и поддержка.</div></div><div class="tile-icon"><i class="fa-solid fa-shield-halved"></i></div></div>
-      <div class="tile"><div class="tile-copy"><div class="tile-title">Фото и видео</div><div class="tile-text">Отчёт после каждой услуги.</div></div><div class="tile-icon"><i class="fa-solid fa-camera"></i></div></div>
-      <div class="tile center"><div class="tile-quote">Доверьте нам самого дорогого</div></div>
-      <div class="tile"><div class="tile-copy"><div class="tile-title">Premium сервис</div><div class="tile-text">Аккуратно, понятно, без лишнего.</div></div><div class="tile-icon"><i class="fa-solid fa-crown"></i></div></div>
+      <button class="tile wide" onclick="showView('sitters')"><div class="tile-copy"><div class="tile-title">Проверенные догситтеры</div><div class="tile-text">Реальные люди с отзывами и опытом.</div></div><img src="/assets/hero-dog.webp" alt="Догситтеры"></button>
+      <button class="tile" onclick="openSimple('safety')"><div class="tile-copy"><div class="tile-title">Безопасность</div><div class="tile-text">Контроль статуса и поддержка.</div></div><div class="tile-icon"><i class="fa-solid fa-shield-halved"></i></div></button>
+      <button class="tile" onclick="showView('report')"><div class="tile-copy"><div class="tile-title">Фото и видео</div><div class="tile-text">Отчёт после каждой услуги.</div></div><div class="tile-icon"><i class="fa-solid fa-camera"></i></div></button>
+      <button class="tile center" onclick="openSimple('care')"><div class="tile-quote">Доверьте нам самого дорогого</div></button>
+      <button class="tile" onclick="openSimple('premium')"><div class="tile-copy"><div class="tile-title">Premium сервис</div><div class="tile-text">Аккуратно, понятно, без лишнего.</div></div><div class="tile-icon"><i class="fa-solid fa-crown"></i></div></button>
     </div>
     <div class="trust">
-      <div class="trust-item"><i class="fa-solid fa-paw"></i><span>Проверенные<br>ситтеры</span></div>
-      <div class="trust-item"><i class="fa-solid fa-shield-halved"></i><span>Безопасность<br>питомца</span></div>
-      <div class="trust-item"><i class="fa-solid fa-camera"></i><span>Фото и видео<br>отчёты</span></div>
-      <div class="trust-item"><i class="fa-solid fa-crown"></i><span>Премиальный<br>сервис</span></div>
+      <button class="trust-item" onclick="showView('sitters')"><i class="fa-solid fa-paw"></i><span>Проверенные<br>ситтеры</span></button>
+      <button class="trust-item" onclick="openSimple('safety')"><i class="fa-solid fa-shield-halved"></i><span>Безопасность<br>питомца</span></button>
+      <button class="trust-item" onclick="showView('report')"><i class="fa-solid fa-camera"></i><span>Фото и видео<br>отчёты</span></button>
+      <button class="trust-item" onclick="openSimple('premium')"><i class="fa-solid fa-crown"></i><span>Премиальный<br>сервис</span></button>
     </div>
   </section>
 
   <section id="view-services" class="view hidden">
     <div class="screen-head"><button class="back" onclick="showView('home')"><i class="fa-solid fa-chevron-left"></i></button><h1>Услуги</h1></div>
-    <div class="pills"><div class="pill active">Все</div><div class="pill">Питомцы</div><div class="pill">Дома</div><div class="pill">Дополнительно</div></div>
+    <div class="pills" id="serviceFilters"><button class="pill active" onclick="filterServices('all',this)">Все</button><button class="pill" onclick="filterServices('pet',this)">Питомцы</button><button class="pill" onclick="filterServices('home',this)">Дома</button><button class="pill" onclick="filterServices('extra',this)">Дополнительно</button></div>
     <div id="serviceList" class="list"></div>
   </section>
 
   <section id="view-sitters" class="view hidden">
     <div class="screen-head"><button class="back" onclick="showView('home')"><i class="fa-solid fa-chevron-left"></i></button><h1>Догситтеры</h1></div>
-    <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input placeholder="Поиск по имени, району, навыкам"></div>
-    <div class="pills"><div class="pill active">Рядом</div><div class="pill">Рейтинг</div><div class="pill">Цена</div><div class="pill">Свободен</div></div>
+    <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="sitterSearch" placeholder="Поиск по имени, району, навыкам" oninput="renderSitters()"></div>
+    <div class="pills" id="sitterFilters"><button class="pill active" onclick="sortSitters('near',this)">Рядом</button><button class="pill" onclick="sortSitters('rating',this)">Рейтинг</button><button class="pill" onclick="sortSitters('price',this)">Цена</button><button class="pill" onclick="sortSitters('free',this)">Свободен</button></div>
     <div id="sitterList" class="list"></div>
   </section>
 
-  <section id="view-sitter" class="view hidden">
-    <div class="screen-head"><button class="back" onclick="showView('sitters')"><i class="fa-solid fa-chevron-left"></i></button><h1>Профиль догситтера</h1></div>
-    <div id="sitterProfile"></div>
-  </section>
+  <section id="view-sitter" class="view hidden"><div class="screen-head"><button class="back" onclick="showView('sitters')"><i class="fa-solid fa-chevron-left"></i></button><h1>Профиль догситтера</h1><button class="screen-icon" onclick="toggleFavoriteSelected()"><i id="sitterFavoriteIcon" class="fa-regular fa-heart"></i></button></div><div id="sitterProfile"></div></section>
 
   <section id="view-booking" class="view hidden">
     <div class="screen-head"><button class="back" onclick="showView('services')"><i class="fa-solid fa-chevron-left"></i></button><h1>Новый заказ</h1></div>
-    <div class="booking-types"><div class="booking-type active"><i class="fa-solid fa-person-walking"></i>Выгул</div><div class="booking-type"><i class="fa-solid fa-house"></i>Передержка</div><div class="booking-type"><i class="fa-regular fa-user"></i>Зооняня</div></div>
-    <div class="field-group"><div class="label">Дата</div><select class="field"><option>Сегодня, 24 мая</option><option>Завтра, 25 мая</option></select></div>
-    <div class="field-group"><div class="label">Время</div><select class="field"><option>17:00</option><option>18:00</option><option>19:00</option></select></div>
-    <div class="field-group"><div class="label">Длительность</div><div class="choices"><div class="choice">30 мин</div><div class="choice active">1 час</div><div class="choice">2 часа</div><div class="choice">Другое</div></div></div>
+    <div class="booking-types" id="bookingTypes"><button class="booking-type active" data-id="1" onclick="selectBookingType(1,this)"><i class="fa-solid fa-person-walking"></i>Выгул</button><button class="booking-type" data-id="2" onclick="selectBookingType(2,this)"><i class="fa-solid fa-house"></i>Передержка</button><button class="booking-type" data-id="3" onclick="selectBookingType(3,this)"><i class="fa-regular fa-user"></i>Зооняня</button></div>
+    <div class="field-group"><div class="label">Дата</div><select id="bookDate" class="field"><option>Сегодня, 24 мая</option><option>Завтра, 25 мая</option><option>26 мая</option></select></div>
+    <div class="field-group"><div class="label">Время</div><select id="bookTime" class="field"><option>17:00</option><option>18:00</option><option>19:00</option></select></div>
+    <div class="field-group"><div class="label">Длительность</div><div class="choices"><button class="choice" onclick="selectChoice(this)">30 мин</button><button class="choice active" onclick="selectChoice(this)">1 час</button><button class="choice" onclick="selectChoice(this)">2 часа</button><button class="choice" onclick="selectChoice(this)">Другое</button></div></div>
     <div class="field-group"><div class="label">Адрес</div><select class="field"><option>Ул. Корзо, 12</option><option>Другой адрес</option></select></div>
-    <div class="field-group"><div class="label">Питомец</div><div class="pet-pick"><img src="/assets/asset-4.webp" alt="pet"><div><b>Бублик</b><div class="tiny">Собака · Корги</div></div><i class="fa-solid fa-chevron-right"></i></div></div>
+    <div class="field-group"><div class="label">Питомец</div><button class="pet-pick" onclick="openPetsFromBooking()"><img src="/assets/asset-4.webp" alt="pet"><span><b>Бублик</b><span class="tiny">Собака · Корги</span></span><i class="fa-solid fa-chevron-right"></i></button></div>
     <div class="field-group"><div class="label">Дополнительно</div><textarea class="field textarea" placeholder="Расскажите о важных деталях"></textarea></div>
     <button class="btn btn-gold btn-wide" onclick="submitBooking()">Найти догситтера</button>
   </section>
 
   <section id="view-profile" class="view hidden">
-    <div class="screen-head"><h1>Профиль</h1><button class="top-icon screen-action"><i class="fa-solid fa-gear"></i></button></div>
+    <div class="screen-head"><h1>Профиль</h1><button class="screen-icon" onclick="openSimple('settings')"><i class="fa-solid fa-gear"></i></button></div>
     <div class="profile-user"><div class="profile-top"><div class="premium"><i class="fa-solid fa-crown"></i></div><div><div id="profileName" class="profile-name">Пользователь</div><div class="profile-role">Премиум пользователь</div></div></div><div class="stats"><div><strong id="statPets">0</strong><span>Питомца</span></div><div><strong id="statOrders">0</strong><span>Заказов</span></div><div><strong>5.0</strong><span>Рейтинг</span></div></div></div>
     <div class="menu">
-      <div class="menu-row" onclick="showView('pets')"><div class="menu-left"><i class="fa-solid fa-paw"></i>Мои питомцы</div><i class="fa-solid fa-chevron-right"></i></div>
-      <div class="menu-row" onclick="showView('orders')"><div class="menu-left"><i class="fa-regular fa-rectangle-list"></i>Мои заказы</div><i class="fa-solid fa-chevron-right"></i></div>
-      <div class="menu-row" onclick="showView('sitters')"><div class="menu-left"><i class="fa-regular fa-heart"></i>Избранные догситтеры</div><i class="fa-solid fa-chevron-right"></i></div>
-      <div class="menu-row"><div class="menu-left"><i class="fa-regular fa-credit-card"></i>Способы оплаты</div><i class="fa-solid fa-chevron-right"></i></div>
-      <div class="menu-row"><div class="menu-left"><i class="fa-regular fa-bell"></i>Уведомления</div><i class="fa-solid fa-chevron-right"></i></div>
-      <div class="menu-row" onclick="showView('executor')"><div class="menu-left"><i class="fa-solid fa-briefcase"></i>Режим исполнителя</div><i class="fa-solid fa-chevron-right"></i></div>
+      <button class="menu-row" onclick="showView('pets')"><span class="menu-left"><i class="fa-solid fa-paw"></i>Мои питомцы</span><i class="fa-solid fa-chevron-right"></i></button>
+      <button class="menu-row" onclick="showView('orders')"><span class="menu-left"><i class="fa-regular fa-rectangle-list"></i>Мои заказы</span><i class="fa-solid fa-chevron-right"></i></button>
+      <button class="menu-row" onclick="showFavorites()"><span class="menu-left"><i class="fa-regular fa-heart"></i>Избранные догситтеры</span><i class="fa-solid fa-chevron-right"></i></button>
+      <button class="menu-row" onclick="openSimple('payments')"><span class="menu-left"><i class="fa-regular fa-credit-card"></i>Способы оплаты</span><i class="fa-solid fa-chevron-right"></i></button>
+      <button class="menu-row" onclick="openSimple('notifications')"><span class="menu-left"><i class="fa-regular fa-bell"></i>Уведомления</span><i class="fa-solid fa-chevron-right"></i></button>
+      <button class="menu-row" onclick="openSimple('help')"><span class="menu-left"><i class="fa-regular fa-circle-question"></i>Помощь</span><i class="fa-solid fa-chevron-right"></i></button>
+      <button class="menu-row" onclick="openSimple('about')"><span class="menu-left"><i class="fa-solid fa-circle-info"></i>О приложении</span><i class="fa-solid fa-chevron-right"></i></button>
+      <button class="menu-row" onclick="showView('executor')"><span class="menu-left"><i class="fa-solid fa-briefcase"></i>Режим исполнителя</span><i class="fa-solid fa-chevron-right"></i></button>
     </div>
-    <div class="gift"><div class="gift-icon"><i class="fa-solid fa-gift"></i></div><div><b>Получите 500 ₽</b><small>Пригласите друга</small></div></div>
+    <button class="gift" onclick="openSimple('referral')"><span class="gift-icon"><i class="fa-solid fa-gift"></i></span><span><b>Получите 500 ₽</b><small>Пригласите друга</small></span><i class="fa-solid fa-chevron-right gift-arrow"></i></button>
   </section>
 
-  <section id="view-pets" class="view hidden"><div class="screen-head"><button class="back" onclick="showView('profile')"><i class="fa-solid fa-chevron-left"></i></button><h1>Мои питомцы</h1><div class="screen-action" onclick="openPetSheet()">Добавить</div></div><div id="petsList" class="list"></div></section>
-
+  <section id="view-pets" class="view hidden"><div class="screen-head"><button class="back" onclick="goBackFromPets()"><i class="fa-solid fa-chevron-left"></i></button><h1>Мои питомцы</h1><button class="screen-action" onclick="openPetSheet()">Добавить</button></div><div id="petsList" class="list"></div></section>
   <section id="view-orders" class="view hidden"><div class="screen-head"><button class="back" onclick="showView('profile')"><i class="fa-solid fa-chevron-left"></i></button><h1>Заказы</h1></div><div class="segmented"><button id="segCurrent" class="seg active" onclick="setOrderTab('current')">Текущие</button><button id="segHistory" class="seg" onclick="setOrderTab('history')">История</button><button id="segCancelled" class="seg" onclick="setOrderTab('cancelled')">Отменённые</button></div><div id="ordersList" class="list"></div></section>
-
-  <section id="view-chat" class="view hidden"><div class="screen-head"><button class="back" onclick="showView('orders')"><i class="fa-solid fa-chevron-left"></i></button><h1>Чат с догситтером</h1></div><div class="chat-head"><img src="/assets/asset-1.webp" alt="sitter"><div><b>Алина</b><small>Была в сети 10 минут назад</small></div></div><div id="messages" class="messages"></div><div class="voice"><div class="play"><i class="fa-solid fa-play"></i></div><div class="wave"></div><small>0:12</small></div><div class="chat-send"><i class="fa-solid fa-paperclip"></i><input id="chatInput" placeholder="Написать сообщение"><i class="fa-solid fa-paper-plane" onclick="sendMessage()"></i></div></section>
-
-  <section id="view-report" class="view hidden"><div class="screen-head"><button class="back" onclick="showView('orders')"><i class="fa-solid fa-chevron-left"></i></button><h1>Фотоотчёт</h1></div><div class="report"><div class="report-photos"><img src="/assets/asset-4.webp"><img src="/assets/asset-4.webp"><img src="/assets/asset-4.webp"></div><div class="report-date">12 сентября, 15:00</div><div class="report-text">Отлично погуляли. Бублик был активным и спокойно отреагировал на других собак.</div><div class="map"><div class="route"></div><div class="marker m1"></div><div class="marker m2"></div><div class="marker m3"></div></div><div class="report-stats"><span><i class="fa-solid fa-route"></i>1.2 км</span><span><i class="fa-regular fa-clock"></i>58 мин</span><span><i class="fa-regular fa-images"></i>3 фото</span></div></div></section>
-
+  <section id="view-chat" class="view hidden"><div class="screen-head"><button class="back" onclick="showView('orders')"><i class="fa-solid fa-chevron-left"></i></button><h1>Чат с догситтером</h1></div><div class="chat-head"><img src="/assets/asset-1.webp" alt="sitter"><div><b>Алина</b><small>Была в сети 10 минут назад</small></div></div><div id="messages" class="messages"></div><button class="voice" onclick="toggleVoice(this)"><span class="play"><i class="fa-solid fa-play"></i></span><span class="wave"></span><small>0:12</small></button><div class="chat-send"><button onclick="showToast('Вложение выбрано')"><i class="fa-solid fa-paperclip"></i></button><input id="chatInput" placeholder="Написать сообщение"><button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button></div></section>
+  <section id="view-report" class="view hidden"><div class="screen-head"><button class="back" onclick="showView('orders')"><i class="fa-solid fa-chevron-left"></i></button><h1>Фотоотчёт</h1></div><div class="report"><div class="report-photos"><button onclick="openPhoto('/assets/asset-4.webp')"><img src="/assets/asset-4.webp"></button><button onclick="openPhoto('/assets/hero-dog.webp')"><img src="/assets/hero-dog.webp"></button><button onclick="openPhoto('/assets/pet-premium.webp')"><img src="/assets/pet-premium.webp"></button></div><div class="report-date">12 сентября, 15:00</div><div class="report-text">Отлично погуляли. Бублик был активным и спокойно отреагировал на других собак.</div><div class="map"><div class="route"></div><div class="marker m1"></div><div class="marker m2"></div><div class="marker m3"></div></div><div class="report-stats"><span><i class="fa-solid fa-route"></i>1.2 км</span><span><i class="fa-regular fa-clock"></i>58 мин</span><span><i class="fa-regular fa-images"></i>3 фото</span></div></div></section>
   <section id="view-reviews" class="view hidden"><div class="screen-head"><button class="back" onclick="showView('sitter')"><i class="fa-solid fa-chevron-left"></i></button><h1>Отзывы</h1></div><div class="review-summary"><div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div><strong>5.0</strong><small>На основе 124 отзывов</small></div><div id="reviewList" class="list"></div></section>
-
   <section id="view-executor" class="view hidden"><div class="screen-head"><button class="back" onclick="showView('profile')"><i class="fa-solid fa-chevron-left"></i></button><h1>Исполнитель</h1></div><div class="segmented"><button id="execAvailable" class="seg active" onclick="setExecutorTab('available')">Доступные</button><button id="execMine" class="seg" onclick="setExecutorTab('mine')">Мои</button></div><div id="executorList" class="list"></div></section>
+  <section id="view-simple" class="view hidden"><div class="screen-head"><button class="back" onclick="simpleBack()"><i class="fa-solid fa-chevron-left"></i></button><h1 id="simpleTitle">Раздел</h1></div><div id="simpleContent"></div></section>
 </div>
 
 <nav id="bottomNav" class="bottomnav hidden">
-  <button data-view="home" onclick="showView('home')"><i class="fa-regular fa-house"></i><span>Главная</span></button>
+  <button data-view="home" onclick="showView('home')"><i class="fa-solid fa-house"></i><span>Главная</span></button>
   <button data-view="services" onclick="showView('services')"><i class="fa-solid fa-paw"></i><span>Услуги</span></button>
   <button data-view="orders" onclick="showView('orders')"><i class="fa-regular fa-rectangle-list"></i><span>Заказы</span></button>
   <button data-view="profile" onclick="showView('profile')"><i class="fa-regular fa-user"></i><span>Профиль</span></button>
 </nav>
-
 <div id="petSheet" class="sheet-backdrop hidden" onclick="closePetSheet(event)"><div class="sheet" onclick="event.stopPropagation()"><div class="sheet-handle"></div><h3>Новый питомец</h3><input id="petName" class="field" placeholder="Имя"><input id="petBreed" class="field" placeholder="Порода"><button class="btn btn-gold btn-wide" onclick="savePet()">Добавить питомца</button></div></div>
-<script src="/assets/app.js?v=4"></script>
+<div id="photoViewer" class="photo-viewer hidden" onclick="closePhoto()"><button onclick="closePhoto()"><i class="fa-solid fa-xmark"></i></button><img id="photoViewerImage" src="" alt="Фото"></div>
+<div id="toast" class="toast hidden"></div>
+<script src="/assets/app.js?v=6"></script>
 </body>
 </html>
