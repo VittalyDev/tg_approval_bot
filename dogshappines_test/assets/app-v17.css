@@ -1,0 +1,53 @@
+/* Dog's Happiness v17 — profile-photo flash fix + consistency pass */
+:root{--v17-card:#0f0e0c;--v17-card2:#15120d;--v17-line:rgba(224,181,102,.22);--v17-gold:#e8bd72;--v17-muted:#9f917c}
+
+/* Never show the hard-coded executor photo before the real profile image is ready. */
+#view-executor-profile .executor-profile-cover{position:relative;background:linear-gradient(145deg,#18130c,#080706);overflow:hidden}
+#view-executor-profile .executor-profile-cover:before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 20%,rgba(232,189,114,.08) 42%,transparent 64%);transform:translateX(-110%);animation:v17Shimmer 1.35s ease-in-out infinite;pointer-events:none}
+#view-executor-profile .executor-profile-cover.v17-photo-ready:before{display:none}
+#view-executor-profile .executor-profile-cover>img{opacity:0!important;transition:opacity .22s ease!important}
+#view-executor-profile .executor-profile-cover.v17-photo-ready>img{opacity:1!important}
+@keyframes v17Shimmer{to{transform:translateX(110%)}}
+
+/* Common card language for older screens that can still be rendered by legacy layers. */
+.metric,.rank-teaser,.timeline-card,.sub-detail,.achievement-box,.tariff-note,.rating-opt,.report-card,.chat-head,.notice,.history-row,.executor-card,.leader-row{
+  border-color:var(--v17-line)!important;background:linear-gradient(145deg,var(--v17-card2),#090806)!important;box-shadow:none!important
+}
+.metric{min-height:78px;border:1px solid var(--v17-line);border-radius:16px;padding:13px 10px;display:flex;flex-direction:column;justify-content:center}
+.metric strong{font-size:20px!important;line-height:1}.metric small{margin-top:7px;color:var(--v17-muted)!important;font-size:9px!important}
+.rank-teaser{border:1px solid var(--v17-line)!important;border-radius:18px!important;padding:14px!important;gap:12px!important}
+.rank-teaser>i{width:44px;height:44px;border-radius:14px;background:#241a0d;display:grid;place-items:center;color:var(--v17-gold)}
+.timeline-card{border:1px solid var(--v17-line);border-radius:18px;overflow:hidden}
+.timeline-line{min-width:0;padding:12px!important;border-bottom:1px solid rgba(224,181,102,.1)!important;display:grid!important;grid-template-columns:52px minmax(0,1fr) auto!important;align-items:center;gap:10px!important}
+.timeline-line:last-child{border-bottom:0!important}.timeline-line div{min-width:0}.timeline-line b,.timeline-line small{overflow-wrap:anywhere}.timeline-line small{color:var(--v17-muted)!important}
+
+/* Profiles and menu rows. */
+#view-client-profile .menu,#view-executor-profile .menu{display:grid!important;gap:8px!important}
+#view-client-profile .menu button,#view-executor-profile .menu button{min-height:58px!important;border:1px solid var(--v17-line)!important;border-radius:16px!important;background:linear-gradient(145deg,#11100d,#0a0907)!important;padding:0 14px!important}
+#view-client-profile .menu button>i:first-child,#view-executor-profile .menu button>i:first-child{width:34px;height:34px;border-radius:11px;background:#21180d;display:grid;place-items:center;color:var(--v17-gold)}
+#view-client-profile .menu button span,#view-executor-profile .menu button span{font-size:11px!important;font-weight:700!important;min-width:0;text-align:left}
+
+/* Legacy empty states and chips. */
+.notice,.v14-empty,.v11-empty{border:1px dashed var(--v17-line)!important;border-radius:18px!important;padding:22px 16px!important;color:var(--v17-muted)!important;text-align:center!important}
+.status,.v14-status,.v11-status{white-space:nowrap}
+
+/* Keep controls readable and prevent accidental overflow. */
+.view *{min-width:0}
+.view h1,.view h2,.view h3,.view b,.view small,.view span,.view p{overflow-wrap:anywhere}
+.btn{min-height:46px}
+.btn:active,button:active{transform:scale(.985)}
+button[disabled]{opacity:.5!important;filter:none!important}
+.screen-head{gap:8px}.screen-head h1{line-height:1.05}
+
+/* Sheets should always fit the Telegram viewport. */
+.v14-sheet,.v15-sheet,.v11-sheet,.v9-sheet,.sheet{max-height:min(86dvh,760px)!important;overflow:auto!important;-webkit-overflow-scrolling:touch}
+
+/* Network status. */
+.v17-network{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translateX(-50%) translateY(-14px);z-index:30000;max-width:calc(100vw - 28px);padding:9px 13px;border-radius:999px;background:#24100d;border:1px solid rgba(230,112,77,.45);color:#ffd2c5;font-size:10px;font-weight:800;opacity:0;pointer-events:none;transition:.2s ease}
+.v17-network.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Image failures should never show browser broken-image chrome. */
+img.v17-image-fallback{object-fit:cover!important;background:linear-gradient(145deg,#21180d,#0b0907)!important}
+
+@media (max-width:380px){.timeline-line{grid-template-columns:44px minmax(0,1fr)!important}.metric strong{font-size:18px!important}}
+@media (prefers-reduced-motion:reduce){#view-executor-profile .executor-profile-cover:before{animation:none}.btn:active,button:active{transform:none}}
