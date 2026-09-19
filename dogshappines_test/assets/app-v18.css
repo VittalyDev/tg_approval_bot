@@ -1,0 +1,54 @@
+/* Dog's Happiness v18 — typography + final presentation polish */
+:root{
+  --font-display:'Bartina',Arial,sans-serif;
+  --font-ui:'Manrope',Arial,sans-serif;
+  --v18-gold:#e8bd72;
+  --v18-line:rgba(232,189,114,.22);
+  --v18-muted:#a99a84;
+}
+html,body{font-family:var(--font-ui);font-optical-sizing:auto;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button,input,textarea,select{font-family:var(--font-ui)}
+.view,.sheet,.v14-sheet,.v15-sheet,.v9-sheet,.bottomnav,.toast{font-family:var(--font-ui)}
+.view h1,.view h2,.view h3,
+.wordmark,.wordmark-sub,.role-brand,.hero-title,
+.section-title>span,.v9-section-title>b,
+.v14-sheet-head h2,.v15-sheet h2,
+.feature-card>div>b,.subscription-top b,
+#view-tariffs .screen-head h1,#view-services .screen-head h1,
+#view-calendar .screen-head h1,#view-leaderboard .screen-head h1{
+  font-family:var(--font-display)!important;
+  font-weight:400!important;
+  letter-spacing:.005em!important;
+  text-wrap:balance;
+}
+.hero-title{line-height:1.02!important}
+.screen-head h1{font-size:clamp(25px,7.2vw,34px)!important}
+.section-title>span{font-size:clamp(22px,6.2vw,29px)!important;line-height:1.03}
+.feature-card>div>b{line-height:1.04!important}
+.wordmark{line-height:.94!important}
+.wordmark-sub{font-size:clamp(14px,4vw,19px)!important;line-height:1.15!important}
+.role-content h1{font-size:clamp(29px,8vw,38px)!important;margin-bottom:6px!important}
+.role-content>p,.hero-text,.intro-bottom p{font-family:var(--font-ui)!important;line-height:1.5!important}
+.btn,.pill,.choice,.seg,.bottomnav button,.menu button,
+.v14-request-card,.v14-order-card,.v14-day-order,.v14-rank-row,
+.v15-slot,.v15-exec-cal-order,.v14-detail-grid,.v14-timeline{
+  font-family:var(--font-ui)!important;
+}
+.btn,.bottomnav button{letter-spacing:0!important}
+.v14-sheet-head h2,.v15-sheet h2{font-size:25px!important;line-height:1.05!important}
+.v14-settings{gap:12px!important}
+.v14-settings>label,.v14-settings-link,.v14-role-switch{margin:0!important}
+.v14-settings label span b,.v14-settings-link span b{font-size:13px!important}
+.v14-settings label span small,.v14-settings-link span small{font-size:9px!important;line-height:1.45!important}
+.v18-repeat-action{
+  min-height:38px;border:1px solid var(--v18-line)!important;border-radius:12px!important;
+  padding:0 13px!important;background:#16120d!important;color:var(--v18-gold)!important;
+  font:800 10px/1 var(--font-ui)!important;
+}
+.v18-repeat-action i{margin-right:6px}
+.v18-font-note{display:none}
+@media(max-width:380px){
+  .screen-head h1{font-size:25px!important}
+  .section-title>span{font-size:22px!important}
+  .v14-sheet-head h2,.v15-sheet h2{font-size:22px!important}
+}
