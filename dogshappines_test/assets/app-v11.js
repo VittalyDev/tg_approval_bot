@@ -72,7 +72,7 @@
       hero.append(trust);
     }
     const addr=document.getElementById('bookAddress');
-    if(addr && /Корзо|Суботиц|Баймок/i.test(addr.value||'')) addr.value='ул. Тверская, 12';
+    if(addr && /Корзо|Суботиц|Арбат/i.test(addr.value||'')) addr.value='ул. Тверская, 12';
   }
 
   async function renderNextOrder(){
@@ -90,7 +90,7 @@
     host.innerHTML=`<div class="v11-section-head"><div><small>БЛИЖАЙШАЯ УСЛУГА</small><b>${relativeDay(o.scheduled_date)}, ${safeText(o.scheduled_time)}</b></div><span class="v11-status ${statusClass(o.status)}">${statusText(o.status)}</span></div>
       <div class="v11-next-card">
         <div class="v11-next-icon"><i class="fa-solid ${icon(o.item_id)}"></i></div>
-        <div class="v11-next-main"><b>${safeText(o.item_name)}</b><small>${safeText(o.pet_name||'Питомец')} · ${o.duration_min||60} мин${sitter?` · ${safeText(sitter.name)}`:''}</small><span><i class="fa-solid fa-location-dot"></i> ${safeText((o.address||'').replace(/Суботица|Баймок/gi,'Москва'))}</span></div>
+        <div class="v11-next-main"><b>${safeText(o.item_name)}</b><small>${safeText(o.pet_name||'Питомец')} · ${o.duration_min||60} мин${sitter?` · ${safeText(sitter.name)}`:''}</small><span><i class="fa-solid fa-location-dot"></i> ${safeText((o.address||'').replace(/Москва|Арбат/gi,'Москва'))}</span></div>
         <button class="v11-round" onclick="showView('orders')"><i class="fa-solid fa-chevron-right"></i></button>
       </div>
       <div class="v11-next-actions"><button onclick="showView('chat')"><i class="fa-regular fa-message"></i> Чат</button><button onclick="showView('orders')"><i class="fa-regular fa-rectangle-list"></i> Детали</button></div>`;
@@ -207,7 +207,7 @@
       const group=relativeDay(o.scheduled_date); const head=group!==last?`<div class="v11-date-group">${safeText(group)}</div>`:''; last=group;
       return `${head}<article class="v11-request">
         <div class="v11-request-top"><div class="v11-request-title"><div class="v11-request-icon"><i class="fa-solid ${icon(o.item_id)}"></i></div><div><h3>${safeText(o.item_name)}</h3><div class="v11-request-time">${safeText(o.scheduled_time||'—')} · ${o.duration_min||60} мин</div></div></div><div class="v11-price">${o.price} ₽</div></div>
-        <div class="v11-request-meta"><div><span>Питомец</span><b>${safeText(o.pet_name||'Питомец')}</b></div><div><span>Район</span><b>${safeText((o.address||'Москва').replace(/Суботица|Баймок|Mali Bajmok/gi,'Москва'))}</b></div></div>
+        <div class="v11-request-meta"><div><span>Питомец</span><b>${safeText(o.pet_name||'Питомец')}</b></div><div><span>Район</span><b>${safeText((o.address||'Москва').replace(/Москва|Арбат|Арбат/gi,'Москва'))}</b></div></div>
         ${o.notes?`<div class="v11-request-note"><i class="fa-regular fa-note-sticky"></i>${safeText(o.notes)}</div>`:''}
         <div class="v11-request-actions">${o.status==='open'?`<button class="btn btn-gold" onclick="confirmAcceptV11(${o.id})">Взять заявку</button>`:o.status==='accepted'?`<button class="btn btn-gold" onclick="setOrderStatus(${o.id},'in_progress')">Начать услугу</button>`:o.status==='in_progress'?`<button class="btn btn-gold" onclick="setOrderStatus(${o.id},'done')">Завершить</button>`:`<span class="v11-status done">Завершён</span>`}</div>
       </article>`;
