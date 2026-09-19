@@ -108,6 +108,25 @@ def init_v14():
     ensure_column(c, "messages", "type", "TEXT DEFAULT 'text'")
     ensure_column(c, "messages", "attachment_url", "TEXT")
     ensure_column(c, "executor_profiles", "active", "INTEGER DEFAULT 1")
+
+    # Final demo cleanup: keep geography consistent with the Russia-only product scope.
+    city_marks = ",".join("?" for _ in RUS_CITIES)
+    c.execute(
+        f"UPDATE users SET city='Москва' WHERE city IS NULL OR TRIM(city)='' OR city NOT IN ({city_marks})",
+        tuple(RUS_CITIES),
+    )
+    c.execute(
+        f"UPDATE executor_profiles SET city='Москва' WHERE city IS NULL OR TRIM(city)='' OR city NOT IN ({city_marks})",
+        tuple(RUS_CITIES),
+    )
+    for old_area, new_area in {
+        "Прозивка": "Хамовники",
+        "Mali Bajmok": "Арбат",
+        "Радиалац": "Пресненский",
+        "Баймок": "Арбат",
+    }.items():
+        c.execute("UPDATE executor_profiles SET area=? WHERE area=?", (new_area, old_area))
+
     c.commit()
     c.close()
 
@@ -459,7 +478,7 @@ class Handler(v13.Handler):
             return self.send_json({
                 **user,
                 "role": d.get("role") or "",
-                "city": d.get("city") or "Москва",
+                "city": d.get("city") if d.get("city") in RUS_CITIES else "Москва",
                 "notifications_enabled": bool(d.get("notifications_enabled", 1)),
                 "privacy_hide_contacts": bool(d.get("privacy_hide_contacts", 1)),
                 "executor_enabled": bool(d.get("executor_enabled")),
@@ -471,7 +490,7 @@ class Handler(v13.Handler):
             ep = c.execute("SELECT active FROM executor_profiles WHERE user_id=?", (uid,)).fetchone()
             c.close()
             return self.send_json({
-                "city": (row["city"] if row else "Москва") or "Москва",
+                "city": (row["city"] if row and row["city"] in RUS_CITIES else "Москва"),
                 "notifications_enabled": bool(row["notifications_enabled"] if row else 1),
                 "privacy_hide_contacts": bool(row["privacy_hide_contacts"] if row else 1),
                 "rating_opt_in": bool(row["rating_opt_in"] if row else 1),
@@ -496,6 +515,7 @@ class Handler(v13.Handler):
                 c.close()
                 return self.send_json(None)
             d = dict(row)
+            d["name"] = d.get("display_name") or user.get("first_name") or user.get("username") or "Исполнитель"
             urow = user_settings_row(c, uid)
             if urow and urow["photo_url"]:
                 d["image"] = urow["photo_url"]
