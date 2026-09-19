@@ -16,9 +16,9 @@
   function cleanCity(v){return RUS_CITIES.includes(v)?v:'Москва'}
   function ruAddress(v){
     const s=String(v||'').trim();
-    const map={'Центр, Суботица':'ЦАО, Москва','Прозивка, Суботица':'Хамовники, Москва','Mali Bajmok':'Пресненский район, Москва','Ул. Корзо, 12':'ул. Тверская, 12','Ул. Корзо,12':'ул. Тверская, 12','Суботица':'Москва','Баймок':'Москва','Нови-Сад':'Санкт-Петербург','Белград':'Москва'};
+    const map={'Центр, Москва':'ЦАО, Москва','Хамовники, Москва':'Хамовники, Москва','Арбат':'Пресненский район, Москва','Ул. Корзо, 12':'ул. Тверская, 12','Ул. Корзо,12':'ул. Тверская, 12','Москва':'Москва','Арбат':'Москва','Санкт-Петербург':'Санкт-Петербург','Казань':'Москва'};
     if(map[s])return map[s];
-    return s.replace(/Суботица/gi,'Москва').replace(/Баймок/gi,'Москва').replace(/Mali Bajmok/gi,'Москва').replace(/Прозивка/gi,'Хамовники').replace(/Корзо/gi,'Тверская');
+    return s.replace(/Москва/gi,'Москва').replace(/Арбат/gi,'Москва').replace(/Арбат/gi,'Москва').replace(/Хамовники/gi,'Хамовники').replace(/Корзо/gi,'Тверская');
   }
   function serviceIcon(id){return({1:'fa-person-walking',2:'fa-house',3:'fa-user',4:'fa-dog',5:'fa-stethoscope',6:'fa-scissors',7:'fa-house-circle-check',8:'fa-car-side'})[Number(id)]||'fa-paw'}
   function fmtDate(iso){if(!iso)return '';const d=new Date(`${iso}T12:00:00`);return Number.isNaN(d.getTime())?iso:new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short'}).format(d).replace('.','')}
@@ -28,7 +28,7 @@
     const old=localStorage.getItem('dh_city_v9');
     if(!RUS_CITIES.includes(old||''))localStorage.setItem('dh_city_v9','Москва');
     const city=document.getElementById('cityLabel'); if(city)city.textContent=cleanCity(localStorage.getItem('dh_city_v9'));
-    const addr=document.getElementById('bookAddress'); if(addr && (!addr.value || /Корзо|Суботиц|Баймок/i.test(addr.value)))addr.value='ул. Тверская, 12';
+    const addr=document.getElementById('bookAddress'); if(addr && (!addr.value || /Корзо|Суботиц|Арбат/i.test(addr.value)))addr.value='ул. Тверская, 12';
   }
 
   function enhancePeople(){
