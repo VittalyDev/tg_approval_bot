@@ -52,3 +52,17 @@ button,input,textarea,select{font-family:var(--font-ui)}
   .section-title>span{font-size:22px!important}
   .v14-sheet-head h2,.v15-sheet h2{font-size:22px!important}
 }
+
+/* Final coverage for legacy screens that can still surface during the demo. */
+.stats.boxed{border:1px solid var(--v18-line);border-radius:18px;background:linear-gradient(145deg,#11100d,#090806);padding:14px}
+.two-line-title{display:inline-block;line-height:1.02!important}
+.v14-review-form{display:grid;gap:14px;padding:2px 0 4px}
+.v14-review-form .textarea{min-height:112px;resize:none}
+.v14-stars{display:flex;justify-content:center;gap:8px}
+.v14-stars button{width:42px;height:42px;border-radius:50%;border:1px solid var(--v18-line);background:#15110c;color:var(--v18-gold);font-size:17px}
+.photo-modal{position:fixed;inset:0;z-index:40000;background:rgba(0,0,0,.92);display:grid;place-items:center;padding:18px}
+.photo-modal.hidden{display:none!important}
+.photo-modal img{max-width:100%;max-height:88dvh;border-radius:18px;object-fit:contain}
+.chat-input{display:grid;grid-template-columns:42px 1fr 42px;gap:8px;align-items:center;padding:10px 0}
+.chat-input input{height:42px;border:1px solid var(--v18-line);border-radius:14px;background:#12100d;color:#f5ead9;padding:0 13px;outline:none}
+.chat-input button{height:42px;border:1px solid var(--v18-line);border-radius:14px;background:#18130d;color:var(--v18-gold)}
