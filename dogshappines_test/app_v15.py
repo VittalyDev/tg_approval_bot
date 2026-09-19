@@ -194,7 +194,7 @@ class Handler(v14.Handler):
                 {
                     "status": "ok",
                     "test_mode": base.TEST_MODE,
-                    "ui": "premium-v16",
+                    "ui": "premium-v18",
                     "persistent_db": str(base.DB).startswith("/data/"),
                 }
             )
@@ -346,5 +346,5 @@ if __name__ == "__main__":
     threading.Thread(
         target=lambda: (time.sleep(1.2), base.configure_bot()), daemon=True
     ).start()
-    print("listening v16", base.PORT, "db", base.DB)
+    print("listening v18", base.PORT, "db", base.DB)
     base.ThreadingHTTPServer(("0.0.0.0", base.PORT), Handler).serve_forever()
