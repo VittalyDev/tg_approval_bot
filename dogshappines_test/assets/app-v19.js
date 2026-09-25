@@ -355,6 +355,14 @@
       q('v19Legal')?.remove();
     };
 
+    async function sendExecutorPresenceV19() {
+      if (currentRoleValue() !== 'executor' || document.hidden) return;
+      try { await api('/api/executor/presence', {method:'POST', body:'{}'}); } catch (_) {}
+    }
+    window.sendExecutorPresenceV19 = sendExecutorPresenceV19;
+    setInterval(sendExecutorPresenceV19, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) sendExecutorPresenceV19(); });
+
     const baseShow = window.showView;
     window.showView = async function(view, ...args) {
       if (String(view).startsWith('executor-')) {
@@ -373,6 +381,7 @@
       normalizeExecutorBadges(q('view-' + view) || document);
       if (view === 'service-executors') installExecutorChoiceNote();
       if (view === 'support') await loadSupportV19();
+      if (String(view).startsWith('executor-')) sendExecutorPresenceV19();
       return result;
     };
 
@@ -391,6 +400,7 @@
     normalizeExecutorBadges();
     setTimeout(installLegalModal, 650);
     setTimeout(async () => {
+      sendExecutorPresenceV19();
       if (currentRoleValue() === 'executor') {
         try {
           const s = await settings(true);
