@@ -122,8 +122,8 @@
         const p = profile || {};
         const services = new Set((p.services || []).map(Number));
         modal(
-          'Анкета исполнителя',
-          'Это обязательный шаг перед публикацией профиля. Данные можно будет изменить позже.',
+          s.executor_onboarding_complete ? 'Профиль исполнителя' : 'Анкета исполнителя',
+          s.executor_onboarding_complete ? 'Измените данные профиля и сохраните.' : 'Это обязательный шаг перед публикацией профиля. Данные можно будет изменить позже.',
           `<div class="v19-form">
             <label><span>Имя, которое увидят клиенты</span><input id="v19ExecName" class="field" maxlength="80" value="${safe(p.name || '')}" placeholder="Например, Анна"></label>
             <label><span>Город</span><select id="v19ExecCity" class="field">${(s.cities || []).map(city => `<option ${city === (p.city || s.city) ? 'selected' : ''}>${safe(city)}</option>`).join('')}</select></label>
@@ -140,6 +140,8 @@
         note(e?.message || 'Не удалось открыть анкету');
       }
     };
+
+    window.openExecutorProfileSettingsV14 = window.openExecutorOnboardingV19;
 
     window.submitExecutorOnboardingV19 = async () => {
       const services = [...document.querySelectorAll('.v19-checks input:checked')].map(x => Number(x.value));
