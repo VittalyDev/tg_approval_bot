@@ -169,6 +169,8 @@ def init_v14():
     }.items():
         c.execute("UPDATE executor_profiles SET area=? WHERE area=?", (new_area, old_area))
 
+    c.execute("UPDATE executor_profiles SET image='service-walk.webp' WHERE image='sitter-v8.webp'")
+
     c.commit()
     c.close()
 
@@ -275,7 +277,7 @@ def user_settings_row(c, user_id):
 def upsert_executor(c, user):
     row = user_settings_row(c, user["id"])
     city = (row["city"] if row and row["city"] in RUS_CITIES else "Москва")
-    photo = (row["photo_url"] if row else None) or "sitter-v8.webp"
+    photo = (row["photo_url"] if row else None) or "service-walk.webp"
     name = (user.get("first_name") or user.get("username") or "Исполнитель").strip()
     c.execute(
         """INSERT INTO executor_profiles(
