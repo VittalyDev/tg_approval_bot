@@ -6,6 +6,7 @@ import os
 import threading
 import time
 import urllib.parse
+import urllib.request
 import uuid
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -24,6 +25,10 @@ RUS_CITIES = [
     "Москва", "Санкт-Петербург", "Казань", "Екатеринбург",
     "Новосибирск", "Сочи", "Нижний Новгород", "Краснодар"
 ]
+
+YOKASSA_SHOP_ID = os.getenv("YOKASSA_SHOP_ID", "").strip()
+YOKASSA_SECRET_KEY = os.getenv("YOKASSA_SECRET_KEY", "").strip()
+SUPPORT_CHAT_ID = os.getenv("SUPPORT_CHAT_ID", "").strip()
 
 DURATION_PRICE_FACTORS = {
     1: {30: 0.65, 60: 1.0, 90: 1.35},
@@ -108,6 +113,43 @@ def init_v14():
     ensure_column(c, "messages", "type", "TEXT DEFAULT 'text'")
     ensure_column(c, "messages", "attachment_url", "TEXT")
     ensure_column(c, "executor_profiles", "active", "INTEGER DEFAULT 1")
+    ensure_column(c, "executor_profiles", "onboarding_complete", "INTEGER DEFAULT 0")
+    ensure_column(c, "executor_profiles", "experience", "TEXT DEFAULT ''")
+    ensure_column(c, "users", "legal_accepted_at", "TEXT")
+    c.executescript("""
+      CREATE TABLE IF NOT EXISTS support_messages(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        sender TEXT NOT NULL,
+        text TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS support_handoffs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        status TEXT DEFAULT 'open',
+        created_at TEXT NOT NULL,
+        closed_at TEXT
+      );
+      CREATE TABLE IF NOT EXISTS legal_consents(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        personal_data INTEGER DEFAULT 0,
+        cookies INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS payments(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        provider TEXT NOT NULL,
+        provider_payment_id TEXT,
+        plan_id TEXT NOT NULL,
+        amount INTEGER NOT NULL,
+        status TEXT DEFAULT 'pending',
+        created_at TEXT NOT NULL,
+        updated_at TEXT
+      );
+    """)
 
     # Final demo cleanup: keep geography consistent with the Russia-only product scope.
     city_marks = ",".join("?" for _ in RUS_CITIES)
@@ -309,6 +351,76 @@ def executor_name(c, executor_id):
     return row["display_name"] if row else None
 
 
+def support_bot_reply(text):
+    q = (text or "").strip().lower()
+    if any(x in q for x in ("оплат", "юкас", "тариф", "абонем")):
+        return "Абонемент можно оплатить на экране «Абонементы». Если платёж не открывается, я могу передать вопрос оператору."
+    if any(x in q for x in ("исполн", "выгул", "кинолог", "роль", "работ")):
+        return "Переключить роль можно прямо на главной. Перед первым входом исполнителем нужно заполнить обязательную анкету."
+    if any(x in q for x in ("заказ", "заяв", "перен", "отмен")):
+        return "Заказы находятся в профиле. Активную заявку можно открыть, изменить или отменить, пока услуга не началась."
+    if any(x in q for x in ("чат", "оператор", "человек", "поддерж")):
+        return "Если моего ответа недостаточно, нажмите «Позвать оператора» — диалог будет передан человеку."
+    return "Я пока отвечаю на основные вопросы по заказам, оплате, ролям и абонементам. Если не помог — нажмите «Позвать оператора»."
+
+
+def activate_subscription(c, uid, plan):
+    c.execute(
+        "UPDATE subscriptions SET status='inactive' WHERE user_id=? AND status='active'",
+        (uid,),
+    )
+    renew = datetime.now(timezone.utc).date() + timedelta(days=30)
+    c.execute(
+        "INSERT INTO subscriptions(user_id,plan_id,plan_name,price,total_walks,used_walks,renew_date,status) VALUES(?,?,?,?,?,?,?,?)",
+        (uid, plan["id"], plan["name"], plan["price"], plan["walks"], 0, str(renew), "active"),
+    )
+
+
+def yookassa_request(path, method="GET", payload=None, idempotence_key=None):
+    if not YOKASSA_SHOP_ID or not YOKASSA_SECRET_KEY:
+        raise RuntimeError("ЮKassa не настроена")
+    auth = base64.b64encode(f"{YOKASSA_SHOP_ID}:{YOKASSA_SECRET_KEY}".encode()).decode()
+    headers = {
+        "Authorization": f"Basic {auth}",
+        "Content-Type": "application/json",
+    }
+    if idempotence_key:
+        headers["Idempotence-Key"] = idempotence_key
+    req = urllib.request.Request(
+        f"https://api.yookassa.ru/v3/{path.lstrip('/')}",
+        data=(json.dumps(payload, ensure_ascii=False).encode() if payload is not None else None),
+        headers=headers,
+        method=method,
+    )
+    with urllib.request.urlopen(req, timeout=20) as response:
+        return json.load(response)
+
+
+def create_yookassa_payment(uid, plan):
+    return_url = (base.MINI_APP_URL or "").rstrip("/") or "https://t.me/"
+    payload = {
+        "amount": {"value": f'{float(plan["price"]):.2f}', "currency": "RUB"},
+        "confirmation": {"type": "redirect", "return_url": return_url},
+        "capture": True,
+        "description": f'Dog\'s Happiness — {plan["name"]}',
+        "metadata": {"user_id": str(uid), "plan_id": str(plan["id"])},
+    }
+    return yookassa_request("payments", "POST", payload, uuid.uuid4().hex)
+
+
+def notify_support_operator(user, text):
+    if not SUPPORT_CHAT_ID:
+        return False
+    name = user.get("first_name") or user.get("username") or str(user.get("id"))
+    return base.telegram(
+        "sendMessage",
+        {
+            "chat_id": SUPPORT_CHAT_ID,
+            "text": f"Новый запрос в поддержку Dog's Happiness\nПользователь: {name} ({user.get('id')})\n{text}",
+        },
+    )
+
+
 def report_for(c, order_id):
     row = c.execute("SELECT * FROM reports WHERE order_id=?", (order_id,)).fetchone()
     if not row:
@@ -485,9 +597,35 @@ class Handler(v13.Handler):
                 "rating_opt_in": bool(d.get("rating_opt_in", 1)),
             })
 
+        if path == "/api/support/messages":
+            rows = c.execute(
+                "SELECT sender,text,created_at FROM support_messages WHERE user_id=? ORDER BY id LIMIT 200",
+                (uid,),
+            ).fetchall()
+            handoff = c.execute(
+                "SELECT 1 FROM support_handoffs WHERE user_id=? AND status='open' ORDER BY id DESC LIMIT 1",
+                (uid,),
+            ).fetchone()
+            messages = []
+            if not rows:
+                messages.append({
+                    "sender": "bot",
+                    "text": "Здравствуйте! Я помощник Dog’s Happiness. Спросите про заказ, оплату, роль или абонемент. Если не справлюсь — подключим оператора.",
+                    "created_at_label": "",
+                })
+            for row in rows:
+                d = dict(row)
+                try:
+                    d["created_at_label"] = datetime.fromisoformat(d["created_at"]).strftime("%H:%M")
+                except Exception:
+                    d["created_at_label"] = ""
+                messages.append(d)
+            c.close()
+            return self.send_json({"messages": messages, "handoff_open": bool(handoff)})
+
         if path == "/api/settings":
             row = user_settings_row(c, uid)
-            ep = c.execute("SELECT active FROM executor_profiles WHERE user_id=?", (uid,)).fetchone()
+            ep = c.execute("SELECT active,onboarding_complete FROM executor_profiles WHERE user_id=?", (uid,)).fetchone()
             c.close()
             return self.send_json({
                 "city": (row["city"] if row and row["city"] in RUS_CITIES else "Москва"),
@@ -496,6 +634,8 @@ class Handler(v13.Handler):
                 "rating_opt_in": bool(row["rating_opt_in"] if row else 1),
                 "executor_profile_active": bool(ep["active"]) if ep else False,
                 "has_executor_profile": bool(ep),
+                "executor_onboarding_complete": bool(ep["onboarding_complete"]) if ep else False,
+                "yookassa_configured": bool(YOKASSA_SHOP_ID and YOKASSA_SECRET_KEY),
                 "cities": RUS_CITIES,
             })
 
@@ -703,6 +843,39 @@ class Handler(v13.Handler):
         path = urllib.parse.urlparse(self.path).path
         if path == "/telegram/webhook":
             return super().do_POST()
+        if path == "/api/payments/yookassa/webhook":
+            data = self.read_json()
+            obj = data.get("object") or {}
+            payment_id = obj.get("id")
+            if data.get("event") != "payment.succeeded" or not payment_id:
+                return self.send_json({"ok": True})
+            try:
+                payment = yookassa_request(f"payments/{payment_id}")
+                if payment.get("status") != "succeeded":
+                    return self.send_json({"ok": True})
+                meta = payment.get("metadata") or {}
+                pay_uid = int(meta.get("user_id") or 0)
+                plan_id = str(meta.get("plan_id") or "")
+                plan = next((x for x in base.TARIFFS if x["id"] == plan_id), None)
+                if not pay_uid or not plan:
+                    return self.send_json({"ok": True})
+                pc = base.conn()
+                existing = pc.execute(
+                    "SELECT status FROM payments WHERE provider_payment_id=? ORDER BY id DESC LIMIT 1",
+                    (payment_id,),
+                ).fetchone()
+                if not existing or existing["status"] != "succeeded":
+                    activate_subscription(pc, pay_uid, plan)
+                    pc.execute(
+                        "UPDATE payments SET status='succeeded',updated_at=? WHERE provider_payment_id=?",
+                        (now_iso(), payment_id),
+                    )
+                    pc.commit()
+                pc.close()
+                return self.send_json({"ok": True})
+            except Exception as exc:
+                print("yookassa webhook FAIL", exc)
+                return self.send_json({"ok": False}, 500)
 
         user = self.require_user()
         if not user:
@@ -716,6 +889,17 @@ class Handler(v13.Handler):
             if role not in ("client", "executor"):
                 c.close()
                 return self.send_json({"error": "Некорректная роль"}, 400)
+            if role == "executor":
+                ep = c.execute(
+                    "SELECT onboarding_complete FROM executor_profiles WHERE user_id=?",
+                    (uid,),
+                ).fetchone()
+                if not ep or not bool(ep["onboarding_complete"]):
+                    c.close()
+                    return self.send_json(
+                        {"error": "Сначала заполните анкету исполнителя", "needs_onboarding": True},
+                        409,
+                    )
             c.execute(
                 """UPDATE users SET role=?,executor_enabled=
                    CASE WHEN ?='executor' THEN 1 ELSE COALESCE(executor_enabled,0) END
@@ -727,6 +911,120 @@ class Handler(v13.Handler):
             c.commit()
             c.close()
             return self.send_json({"ok": True, "role": role})
+
+        if path == "/api/executor/onboarding":
+            display_name = (data.get("display_name") or user.get("first_name") or "").strip()[:80]
+            city = (data.get("city") or "").strip()
+            area = (data.get("area") or "").strip()[:80]
+            experience = (data.get("experience") or "").strip()[:160]
+            bio = (data.get("bio") or "").strip()[:800]
+            try:
+                price = max(300, min(10000, int(data.get("price") or 700)))
+            except Exception:
+                price = 700
+            services = data.get("services") or []
+            valid_services = sorted({int(x) for x in services if str(x).isdigit() and 1 <= int(x) <= 8})
+            if len(display_name) < 2 or len(area) < 2 or len(experience) < 3 or not valid_services:
+                c.close()
+                return self.send_json({"error": "Заполните обязательные поля анкеты"}, 400)
+            if city not in RUS_CITIES:
+                city = "Москва"
+            upsert_executor(c, user)
+            c.execute(
+                """UPDATE executor_profiles SET display_name=?,city=?,area=?,experience=?,bio=?,
+                   price=?,services_json=?,active=1,onboarding_complete=1 WHERE user_id=?""",
+                (display_name, city, area, experience, bio, price, json.dumps(valid_services), uid),
+            )
+            c.execute(
+                "UPDATE users SET role='executor',executor_enabled=1,city=? WHERE id=?",
+                (city, uid),
+            )
+            c.commit()
+            c.close()
+            return self.send_json({"ok": True, "role": "executor"})
+
+        if path == "/api/support/messages":
+            text = (data.get("text") or "").strip()[:1200]
+            if not text:
+                c.close()
+                return self.send_json({"error": "Введите сообщение"}, 400)
+            stamp = now_iso()
+            c.execute(
+                "INSERT INTO support_messages(user_id,sender,text,created_at) VALUES(?,?,?,?)",
+                (uid, "user", text, stamp),
+            )
+            reply = support_bot_reply(text)
+            c.execute(
+                "INSERT INTO support_messages(user_id,sender,text,created_at) VALUES(?,?,?,?)",
+                (uid, "bot", reply, now_iso()),
+            )
+            c.commit()
+            c.close()
+            return self.send_json({"ok": True, "reply": reply})
+
+        if path == "/api/support/handoff":
+            exists = c.execute(
+                "SELECT 1 FROM support_handoffs WHERE user_id=? AND status='open' LIMIT 1",
+                (uid,),
+            ).fetchone()
+            if not exists:
+                c.execute(
+                    "INSERT INTO support_handoffs(user_id,status,created_at) VALUES(?,?,?)",
+                    (uid, "open", now_iso()),
+                )
+                c.execute(
+                    "INSERT INTO support_messages(user_id,sender,text,created_at) VALUES(?,?,?,?)",
+                    (uid, "bot", "Передал диалог оператору. Он увидит историю переписки и подключится, как только сможет.", now_iso()),
+                )
+                c.commit()
+                notify_support_operator(user, "Пользователь запросил подключение оператора.")
+            c.close()
+            return self.send_json({"ok": True, "handoff_open": True})
+
+        if path == "/api/legal/consent":
+            personal = 1 if bool(data.get("personal_data")) else 0
+            cookies = 1 if bool(data.get("cookies")) else 0
+            if not personal or not cookies:
+                c.close()
+                return self.send_json({"error": "Нужно подтвердить оба пункта"}, 400)
+            stamp = now_iso()
+            c.execute(
+                "INSERT INTO legal_consents(user_id,personal_data,cookies,created_at) VALUES(?,?,?,?)",
+                (uid, personal, cookies, stamp),
+            )
+            c.execute("UPDATE users SET legal_accepted_at=? WHERE id=?", (stamp, uid))
+            c.commit()
+            c.close()
+            return self.send_json({"ok": True})
+
+        if path == "/api/payments/yookassa":
+            plan = next((x for x in base.TARIFFS if x["id"] == data.get("plan_id")), None)
+            if not plan:
+                c.close()
+                return self.send_json({"error": "Тариф не найден"}, 404)
+            if base.TEST_MODE and not (YOKASSA_SHOP_ID and YOKASSA_SECRET_KEY):
+                activate_subscription(c, uid, plan)
+                c.commit()
+                c.close()
+                return self.send_json({"ok": True, "demo": True})
+            if not YOKASSA_SHOP_ID or not YOKASSA_SECRET_KEY:
+                c.close()
+                return self.send_json({"error": "ЮKassa пока не настроена. Добавьте YOKASSA_SHOP_ID и YOKASSA_SECRET_KEY."}, 503)
+            try:
+                payment = create_yookassa_payment(uid, plan)
+                c.execute(
+                    """INSERT INTO payments(user_id,provider,provider_payment_id,plan_id,amount,status,created_at)
+                       VALUES(?,?,?,?,?,?,?)""",
+                    (uid, "yookassa", payment.get("id"), plan["id"], plan["price"], payment.get("status") or "pending", now_iso()),
+                )
+                c.commit()
+                confirmation = payment.get("confirmation") or {}
+                url = confirmation.get("confirmation_url")
+                c.close()
+                return self.send_json({"ok": True, "payment_id": payment.get("id"), "confirmation_url": url})
+            except Exception as exc:
+                c.close()
+                return self.send_json({"error": f"Не удалось создать платёж: {exc}"}, 502)
 
         if path == "/api/me/rating-opt":
             enabled = 1 if bool(data.get("enabled")) else 0
@@ -740,12 +1038,7 @@ class Handler(v13.Handler):
             if not plan:
                 c.close()
                 return self.send_json({"error": "Тариф не найден"}, 404)
-            c.execute("UPDATE subscriptions SET status='inactive' WHERE user_id=? AND status='active'", (uid,))
-            renew = datetime.now(timezone.utc).date() + timedelta(days=30)
-            c.execute(
-                "INSERT INTO subscriptions(user_id,plan_id,plan_name,price,total_walks,used_walks,renew_date,status) VALUES(?,?,?,?,?,?,?,?)",
-                (uid, plan["id"], plan["name"], plan["price"], plan["walks"], 0, str(renew), "active"),
-            )
+            activate_subscription(c, uid, plan)
             c.commit()
             c.close()
             return self.send_json({"ok": True})
@@ -788,9 +1081,14 @@ class Handler(v13.Handler):
             valid_services = sorted({int(x) for x in services if str(x).isdigit() and 1 <= int(x) <= 8})
             if not valid_services:
                 valid_services = [1]
+            experience = (data.get("experience") or "").strip()[:160]
+            display_name = (data.get("display_name") or "").strip()[:80]
             c.execute(
-                "UPDATE executor_profiles SET bio=?,area=?,price=?,services_json=? WHERE user_id=?",
-                (bio, area, price, json.dumps(valid_services), uid),
+                """UPDATE executor_profiles SET bio=?,area=?,price=?,services_json=?,
+                   experience=CASE WHEN ?!='' THEN ? ELSE experience END,
+                   display_name=CASE WHEN ?!='' THEN ? ELSE display_name END
+                   WHERE user_id=?""",
+                (bio, area, price, json.dumps(valid_services), experience, experience, display_name, display_name, uid),
             )
             c.commit()
             c.close()
