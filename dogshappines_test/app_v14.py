@@ -115,6 +115,7 @@ def init_v14():
     ensure_column(c, "executor_profiles", "active", "INTEGER DEFAULT 1")
     ensure_column(c, "executor_profiles", "onboarding_complete", "INTEGER DEFAULT 0")
     ensure_column(c, "executor_profiles", "experience", "TEXT DEFAULT ''")
+    ensure_column(c, "executor_profiles", "last_seen_at", "TEXT")
     ensure_column(c, "users", "legal_accepted_at", "TEXT")
     c.executescript("""
       CREATE TABLE IF NOT EXISTS support_messages(
@@ -321,6 +322,16 @@ def executor_rows(c, service_id=None, city=None, requester_id=None):
         if not base.TEST_MODE and requester_id and int(d["user_id"]) == int(requester_id):
             continue
         rating = float(d.get("avg_rating") or d.get("rating") or 5.0)
+        online = False
+        if d.get("last_seen_at"):
+            try:
+                seen = datetime.fromisoformat(d["last_seen_at"])
+                now = datetime.now(timezone.utc)
+                if seen.tzinfo is None:
+                    seen = seen.replace(tzinfo=timezone.utc)
+                online = (now - seen).total_seconds() <= 180
+            except Exception:
+                online = False
         out.append({
             "id": int(d["user_id"]),
             "name": d.get("display_name") or d.get("first_name") or "Исполнитель",
@@ -333,6 +344,7 @@ def executor_rows(c, service_id=None, city=None, requester_id=None):
                 int(next((x["price"] for x in base.CATALOG if service_id and int(x["id"]) == int(service_id)), 0) or 0)
             ),
             "free": True,
+            "online": bool(online),
             "sponsored": bool(d.get("sponsored")),
             "image": d.get("photo_url") or d.get("image") or "sitter-v8.webp",
             "walks": int(d.get("completed") or 0),
@@ -340,6 +352,12 @@ def executor_rows(c, service_id=None, city=None, requester_id=None):
             "about": d.get("bio") or "",
             "dynamic": True,
         })
+    out.sort(key=lambda x: (
+        not bool(x.get("online")),
+        not bool(x.get("sponsored")),
+        -float(x.get("rating") or 0),
+        -int(x.get("walks") or 0),
+    ))
     return out
 
 
@@ -1027,6 +1045,22 @@ class Handler(v13.Handler):
             except Exception as exc:
                 c.close()
                 return self.send_json({"error": f"Не удалось создать платёж: {exc}"}, 502)
+
+        if path == "/api/executor/presence":
+            ep = c.execute(
+                "SELECT onboarding_complete FROM executor_profiles WHERE user_id=?",
+                (uid,),
+            ).fetchone()
+            if not ep or not bool(ep["onboarding_complete"]):
+                c.close()
+                return self.send_json({"error": "Профиль исполнителя не заполнен"}, 409)
+            c.execute(
+                "UPDATE executor_profiles SET last_seen_at=?,active=1 WHERE user_id=?",
+                (now_iso(), uid),
+            )
+            c.commit()
+            c.close()
+            return self.send_json({"ok": True})
 
         if path == "/api/me/rating-opt":
             enabled = 1 if bool(data.get("enabled")) else 0
