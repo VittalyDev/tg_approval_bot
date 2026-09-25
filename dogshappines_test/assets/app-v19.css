@@ -1,0 +1,49 @@
+/* Dog's Happiness v19 — client feedback pass */
+:root{--v19-gold:#e8bd72;--v19-gold2:#f2cf8f;--v19-line:rgba(232,189,114,.26);--v19-card:#12100d;--v19-muted:#a79780}
+
+.v19-role-cta{margin:10px 0 14px;border:1px solid rgba(242,207,143,.48);border-radius:20px;background:linear-gradient(135deg,#2b1d0b,#17120c 62%,#0d0b09);padding:14px;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;box-shadow:0 10px 28px rgba(0,0,0,.22)}
+.v19-role-cta>i{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#d89d45,#f0c979);color:#241708;font-size:18px}
+.v19-role-cta span{min-width:0}.v19-role-cta b{display:block;font:400 20px/1.05 var(--font-display,'Bartina',Arial,sans-serif);color:#fff6e8}.v19-role-cta small{display:block;margin-top:5px;color:#b9aa94;font-size:10px;line-height:1.35}
+.v19-role-cta button{border:0;border-radius:13px;background:var(--v19-gold);color:#20170b;min-height:40px;padding:0 12px;font-weight:900;font-size:10px;white-space:nowrap}
+
+#view-services #serviceList{display:grid!important;gap:10px!important}
+#view-services .service{display:grid!important;grid-template-columns:68px minmax(0,1fr) auto!important;gap:12px!important;align-items:center!important;min-height:88px!important;padding:10px 12px!important;border-radius:18px!important}
+#view-services .service>span:nth-child(2){display:block!important;min-width:0!important}
+#view-services .service-name{display:block!important;margin:0 0 5px!important;line-height:1.18!important}
+#view-services .service-desc{display:block!important;line-height:1.35!important;color:var(--muted,#9b8e7a)!important}
+#view-services .service-go{display:flex!important;align-items:center!important;gap:8px!important;justify-content:flex-end!important}
+#view-services .service-price{display:block!important;white-space:nowrap!important}
+.v9-service-card div>b,.v9-service-card div>small,.v9-service-card div>em{display:block!important}
+.v9-service-card div>small{margin-top:4px!important;line-height:1.35!important}.v9-service-card div>em{margin-top:7px!important}
+
+.v19-exec-choice-note{margin:10px 0 12px;padding:11px 12px;border-radius:15px;border:1px solid var(--v19-line);background:#12100d;color:#c4b6a2;font-size:10px;line-height:1.45;display:flex;gap:9px;align-items:flex-start}
+.v19-exec-choice-note i{color:var(--v19-gold);margin-top:2px}.v13-badges em.soft{white-space:nowrap}
+
+#view-tariffs .tariff-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;overflow:visible!important;padding-bottom:0!important}
+#view-tariffs .tariff-card{min-width:0!important;width:auto!important;margin:0!important;padding:14px!important}
+#view-tariffs .tariff-card h3{font-size:20px!important;line-height:1.05!important}
+#view-tariffs .tariff-price{font-size:22px!important}
+#view-tariffs .tariff-desc{min-height:34px}
+#view-tariffs .btn{font-size:10px!important;padding:0 8px!important}
+.v19-payment-hint{margin-top:10px;font-size:9px;line-height:1.4;color:var(--v19-muted);text-align:center}
+
+.v19-modal-backdrop{position:fixed;inset:0;z-index:50000;background:rgba(0,0,0,.76);display:flex;align-items:flex-end;justify-content:center;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.v19-modal{width:min(100%,560px);max-height:90dvh;overflow:auto;background:#0f0d0a;border:1px solid var(--v19-line);border-radius:24px;padding:18px;box-shadow:0 22px 80px rgba(0,0,0,.52)}
+.v19-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}.v19-modal-head h2{margin:0;font:400 28px/1 var(--font-display,'Bartina',Arial,sans-serif);color:#fff6e9}.v19-modal-head p{margin:7px 0 0;color:#aa9b86;font-size:10px;line-height:1.45}
+.v19-modal-close{width:38px;height:38px;border-radius:50%;border:1px solid var(--v19-line);background:#17130e;color:#ead8ba}
+.v19-form{display:grid;gap:11px}.v19-form label>span{display:block;margin-bottom:6px;color:#d9c9af;font-size:10px;font-weight:800}.v19-form .field{width:100%;box-sizing:border-box}.v19-form textarea{min-height:86px;resize:vertical}
+.v19-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.v19-checks label{display:flex;align-items:center;gap:7px;border:1px solid var(--v19-line);border-radius:13px;padding:10px;background:#15120e;color:#dfcfb6;font-size:10px}.v19-checks input{accent-color:#dfae5d}
+.v19-consent{display:flex!important;gap:9px;align-items:flex-start;color:#aa9b86!important;font-size:9px!important;line-height:1.45}.v19-consent input{margin-top:2px;accent-color:#dfae5d}
+.v19-modal-actions{display:grid;gap:8px;margin-top:14px}
+
+#view-support{padding-bottom:110px}.v19-support-intro{border:1px solid var(--v19-line);background:linear-gradient(145deg,#17120d,#0d0b09);border-radius:20px;padding:14px;margin-bottom:12px}.v19-support-intro b{display:block;font:400 22px/1.05 var(--font-display,'Bartina',Arial,sans-serif)}.v19-support-intro small{display:block;margin-top:6px;color:#a99b86;line-height:1.4}
+.v19-support-messages{display:grid;gap:8px;min-height:260px;align-content:end}.v19-msg{max-width:86%;border-radius:16px;padding:10px 12px;font-size:11px;line-height:1.42}.v19-msg.user{margin-left:auto;background:#e3b564;color:#20170c;border-bottom-right-radius:5px}.v19-msg.bot{background:#17140f;color:#eee0ca;border:1px solid var(--v19-line);border-bottom-left-radius:5px}.v19-msg.operator{background:#132018;color:#d9f0de;border:1px solid rgba(105,170,118,.35)}.v19-msg small{display:block;margin-top:4px;opacity:.58;font-size:8px}
+.v19-support-compose{position:sticky;bottom:88px;margin-top:12px;display:grid;grid-template-columns:1fr 44px;gap:8px;background:#090806;padding:8px 0}.v19-support-compose input{height:44px;border-radius:14px;border:1px solid var(--v19-line);background:#15120e;color:#fff0d9;padding:0 13px;outline:none}.v19-support-compose button{border:0;border-radius:14px;background:var(--v19-gold);color:#23190c}
+.v19-operator-btn{width:100%;margin-top:10px;min-height:44px;border-radius:14px;border:1px solid rgba(232,189,114,.42);background:#19130c;color:#f0c979;font-weight:900}.v19-support-cta{margin:12px 0 2px;width:100%;border:1px solid var(--v19-line);border-radius:18px;background:#12100d;color:#f4e6cf;padding:13px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left}.v19-support-cta i{color:var(--v19-gold)}.v19-support-cta b{display:block}.v19-support-cta small{display:block;color:#9f917e;margin-top:4px;font-size:9px}
+
+.v19-legal-copy{color:#b7a993;font-size:10px;line-height:1.5}.v19-legal-copy a{color:#efc777;text-decoration:underline}.v19-legal-row{display:flex;gap:9px;align-items:flex-start;margin-top:10px}.v19-legal-row input{margin-top:3px;accent-color:#dfae5d}.v19-legal-row span{font-size:9px;line-height:1.45;color:#b3a48f}
+
+@media(max-width:380px){
+  .v19-role-cta{grid-template-columns:40px minmax(0,1fr);padding:12px}.v19-role-cta>i{width:40px;height:40px}.v19-role-cta button{grid-column:1/-1;width:100%}
+  #view-tariffs .tariff-card{padding:12px!important}#view-tariffs .tariff-card h3{font-size:18px!important}#view-tariffs .tariff-price{font-size:19px!important}
+}
