@@ -12,7 +12,7 @@
     window.V17 = { booted: true, version: 17 };
 
     const q = id => document.getElementById(id);
-    const FALLBACK_SITTER = '/assets/sitter-v8.webp';
+    const FALLBACK_SITTER = '/assets/service-walk.webp';
     const FALLBACK_PET = '/assets/service-walk.webp';
     const locks = new Set();
     let executorProfilePromise = null;
