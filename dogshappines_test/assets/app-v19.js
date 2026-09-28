@@ -55,19 +55,19 @@
     function installRoleCtas() {
       const client = q('view-client-home');
       if (client && !q('v19ClientRoleCta')) {
-        const c = document.createElement('div');
-        c.id = 'v19ClientRoleCta';
-        c.className = 'v19-role-cta';
-        c.innerHTML = '<i class="fa-solid fa-briefcase"></i><span><b>Хотите работать с питомцами?</b><small>Станьте выгульщиком, зооняней или кинологом. Анкета занимает пару минут.</small></span><button type="button" onclick="startRoleSwitchV19()">Стать исполнителем</button>';
-        client.querySelector('.topbar')?.insertAdjacentElement('afterend', c);
+        const box = document.createElement('div');
+        box.id = 'v19ClientRoleCta';
+        box.className = 'v19-role-switcher';
+        box.innerHTML = '<button class="active" type="button"><i class="fa-solid fa-paw"></i><span>Вы хозяин питомца</span></button><button type="button" onclick="startRoleSwitchV19()"><i class="fa-solid fa-briefcase"></i><span>Стать исполнителем</span></button>';
+        client.querySelector('.topbar')?.insertAdjacentElement('afterend', box);
       }
       const exec = q('view-executor-home');
       if (exec && !q('v19ExecRoleCta')) {
-        const c = document.createElement('div');
-        c.id = 'v19ExecRoleCta';
-        c.className = 'v19-role-cta';
-        c.innerHTML = '<i class="fa-solid fa-paw"></i><span><b>Режим исполнителя</b><small>Нужно заказать услугу для своего питомца? Переключитесь в режим хозяина.</small></span><button type="button" onclick="startRoleSwitchV19()">Режим хозяина</button>';
-        exec.querySelector('.topbar')?.insertAdjacentElement('afterend', c);
+        const box = document.createElement('div');
+        box.id = 'v19ExecRoleCta';
+        box.className = 'v19-role-switcher';
+        box.innerHTML = '<button type="button" onclick="startRoleSwitchV19()"><i class="fa-solid fa-paw"></i><span>Стать хозяином</span></button><button class="active" type="button"><i class="fa-solid fa-briefcase"></i><span>Вы исполнитель</span></button>';
+        exec.querySelector('.topbar')?.insertAdjacentElement('afterend', box);
       }
     }
 
