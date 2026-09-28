@@ -86,10 +86,12 @@
           ${field('v20_phone','Контактный телефон',d.phone,'+7 999 123-45-67','tel','maxlength="30"')}
           ${field('v20_telegram','Ник в Telegram',d.telegram_username,'@username','text','maxlength="80"')}
         </div>
-        <div class="v20-field"><span>Статус самозанятости</span>
-          ${radio('v20_self_employed',['Оформлена','Нет','В процессе'],d.self_employed_status)}
+        ${field('v20_social_url','Ссылка на соцсети / сайт / портфолио',d.social_url,'https://... или @username','text','maxlength="300"')}
+        <div class="v20-hint">При желании</div>
+        <div class="v20-field"><span>Есть ли статус самозанятого?</span>
+          ${radio('v20_self_employed',['Да','Нет','В процессе'],d.self_employed_status)}
         </div>
-        <div class="v20-field"><span>Если самозанятости нет, нужна помощь с оформлением?</span>
+        <div class="v20-field"><span>Если нет самозанятости, нужна ли помощь в оформлении?</span>
           ${yesNo('v20_self_employed_help',d.self_employed_help)}
         </div>`;
 
@@ -107,7 +109,7 @@
       if (step === 2) return `
         <div class="v20-step-title"><em>03</em><div><h3>Условия оказания услуг</h3><p>Где и в каком формате вы готовы работать.</p></div></div>
         <div class="v20-field"><span>Где оказываются услуги?</span>
-          ${radio('v20_service_location',['У клиента','У исполнителя','На улице / выезд','В салоне'],d.service_location)}
+          ${radio('v20_service_location',['У клиента','У исполнителя','В салоне'],d.service_location)}
         </div>
         <div class="v20-field"><span>Есть отдельное помещение для животных?</span>${yesNo('v20_separate_room',d.separate_room)}</div>
         ${field('v20_simultaneous','Сколько животных одновременно берёте в работу?',d.simultaneous_pets || '1','Например, 2','number','min="1" max="20"')}
@@ -125,7 +127,7 @@
 
       if (step === 4) return `
         <div class="v20-step-title"><em>05</em><div><h3>График и доступность</h3><p>Клиентам и оператору будет проще не допускать накладок.</p></div></div>
-        <div class="v20-field"><span>Дни работы</span>${dayChecks(d.work_days)}</div>
+        <div class="v20-field"><span>Дни и часы работы</span>${dayChecks(d.work_days)}</div>
         ${field('v20_work_hours','Часы работы',d.work_hours,'Например, 09:00–21:00','text','maxlength="120"')}
         <div class="v20-grid two">
           <div class="v20-field"><span>Работаете в выходные?</span>${yesNo('v20_weekends',d.weekends)}</div>
@@ -155,6 +157,7 @@
         d.preferred_areas = q('v20_areas').value.trim();
         d.phone = q('v20_phone').value.trim();
         d.telegram_username = q('v20_telegram').value.trim();
+        d.social_url = q('v20_social_url')?.value.trim() || '';
         d.self_employed_status = readRadio('v20_self_employed');
         d.self_employed_help = readRadio('v20_self_employed_help');
       }
@@ -250,13 +253,25 @@
 
     window.v20NextStep = async () => {
       capture();
-      const error = validate(V20.step);
-      if (error) return toast(error);
+
+      // Navigation between steps is never blocked. This makes the form easy to review,
+      // while all required answers are still checked before the final submit.
       if (V20.step < 5) {
         V20.step += 1;
         render();
         return;
       }
+
+      for (let step = 0; step < 6; step += 1) {
+        const error = validate(step);
+        if (error) {
+          V20.step = step;
+          render();
+          toast(error);
+          return;
+        }
+      }
+
       const btn = q('v20Next');
       if (btn) { btn.disabled = true; btn.textContent = 'Сохраняем…'; }
       try {
@@ -294,6 +309,7 @@
           preferred_areas: saved.preferred_areas || p.area || '',
           phone: saved.phone || '',
           telegram_username: saved.telegram_username || '',
+          social_url: saved.social_url || '',
           self_employed_status: saved.self_employed_status || '',
           self_employed_help: saved.self_employed_help || '',
           services: saved.services || p.services || [],
@@ -333,7 +349,7 @@
               <div class="v20-brand"><span><i class="fa-solid fa-paw"></i></span><div><small>DOG’S HAPPINESS</small><b>Анкета исполнителя</b></div></div>
               <button type="button" class="v20-close" onclick="closeExecutorApplicationV20()"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="v20-progress-meta"><span id="v20StepLabel">Шаг 1 из 6</span><em>${settings?.executor_onboarding_complete ? 'Редактирование профиля' : '≈ 3–5 минут'}</em></div>
+            <div class="v20-progress-meta"><span id="v20StepLabel">Шаг 1 из 6</span><em>${settings?.executor_onboarding_complete ? 'Редактирование профиля' : '≈ 5–7 минут'}</em></div>
             <div class="v20-progress"><span id="v20ProgressFill"></span></div>
             <div id="v20ExecutorBody" class="v20-body"></div>
             <div class="v20-footer">
