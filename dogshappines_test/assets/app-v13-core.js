@@ -1,6 +1,6 @@
 (()=>{'use strict';
 const baseShow=window.showView,baseRole=window.chooseRole;window.V13={executors:[],me:null,baseShow,activeChatOrderId:null,chatTimer:null};
-const q=id=>document.getElementById(id),safe=v=>window.esc?esc(v??''):String(v??''),note=t=>window.toast?toast(t):alert(t),asset=n=>n&&/^https?:/i.test(n)?n:`/assets/${n||'sitter-v8.webp'}`;
+const q=id=>document.getElementById(id),safe=v=>window.esc?esc(v??''):String(v??''),note=t=>window.toast?toast(t):alert(t),asset=n=>n&&/^https?:/i.test(n)?n:`/assets/${n||'executor-hero-v19.webp'}`;
 async function me(){try{V13.me=await api('/api/me')}catch(_){}return V13.me}
 async function execs(service){V13.executors=await api('/api/executors'+(service?`?service_id=${Number(service)}`:''));return V13.executors}
 const get=id=>V13.executors.find(x=>Number(x.id)===Number(id));
