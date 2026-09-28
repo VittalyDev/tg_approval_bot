@@ -201,7 +201,7 @@ class Handler(v14.Handler):
                 {
                     "status": "ok",
                     "test_mode": base.TEST_MODE,
-                    "ui": "premium-v19.1",
+                    "ui": "premium-v20.1",
                     "persistent_db": str(base.DB).startswith("/data/"),
                 }
             )
@@ -359,6 +359,7 @@ class Handler(v14.Handler):
                 "preferred_areas": preferred_areas,
                 "phone": phone,
                 "telegram_username": telegram_username,
+                "social_url": s("social_url", 300),
                 "self_employed_status": s("self_employed_status", 40),
                 "self_employed_help": s("self_employed_help", 16),
                 "services": valid_services,
@@ -532,5 +533,5 @@ if __name__ == "__main__":
     threading.Thread(
         target=lambda: (time.sleep(1.2), base.configure_bot()), daemon=True
     ).start()
-    print("listening v19.1", base.PORT, "db", base.DB)
+    print("listening v20.1", base.PORT, "db", base.DB)
     base.ThreadingHTTPServer(("0.0.0.0", base.PORT), Handler).serve_forever()
