@@ -39,10 +39,35 @@
     const selectedValues = selector => [...document.querySelectorAll(selector + ':checked')].map(x => x.value);
 
     function close() {
+      try {
+        capture();
+        saveDraft(true);
+      } catch (_) {}
       q('v20ExecutorApplication')?.remove();
       document.body.classList.remove('v20-lock');
     }
     window.closeExecutorApplicationV20 = close;
+
+    async function saveDraft(silent = true) {
+      if (!V20.data || !Object.keys(V20.data).length) return;
+      try {
+        const payload = {...V20.data, _draft:true, _last_step:V20.step};
+        delete payload._editing;
+        delete payload.confirmed;
+        const r = await api('/api/executor/application', {
+          method:'POST',
+          body:JSON.stringify(payload)
+        });
+        V20.applicationStatus = r?.status || V20.applicationStatus || 'draft';
+        const state = q('v20SaveState');
+        if (state) state.textContent = V20.applicationStatus === 'submitted' ? 'Анкета сохранена' : 'Черновик сохранён';
+      } catch (e) {
+        if (!silent) throw e;
+        const state = q('v20SaveState');
+        if (state) state.textContent = 'Не удалось сохранить черновик';
+      }
+    }
+    window.saveExecutorDraftV20 = saveDraft;
 
     function showFormError(message = '') {
       const box = q('v20Error');
@@ -254,8 +279,9 @@
       q('v20ExecutorBody').scrollTop = 0;
     }
 
-    window.v20PrevStep = () => {
+    window.v20PrevStep = async () => {
       capture();
+      await saveDraft(true);
       if (V20.step > 0) V20.step -= 1;
       render();
     };
@@ -266,6 +292,7 @@
       // Navigation between steps is never blocked. This makes the form easy to review,
       // while all required answers are still checked before the final submit.
       if (V20.step < 5) {
+        await saveDraft(true);
         V20.step += 1;
         render();
         return;
@@ -349,7 +376,8 @@
           confirmed: false,
           _editing: !!settings?.executor_onboarding_complete
         };
-        V20.step = 0;
+        V20.applicationStatus = application?.status || 'new';
+        V20.step = Math.max(0, Math.min(5, Number(saved._last_step || 0)));
         close();
         const overlay = document.createElement('div');
         overlay.id = 'v20ExecutorApplication';
@@ -360,7 +388,7 @@
               <div class="v20-brand"><span><i class="fa-solid fa-paw"></i></span><div><small>DOG’S HAPPINESS</small><b>Анкета исполнителя</b></div></div>
               <button type="button" class="v20-close" onclick="closeExecutorApplicationV20()"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="v20-progress-meta"><span id="v20StepLabel">Шаг 1 из 6</span><em>${settings?.executor_onboarding_complete ? 'Редактирование профиля' : '≈ 5–7 минут'}</em></div>
+            <div class="v20-progress-meta"><span id="v20StepLabel">Шаг 1 из 6</span><em id="v20SaveState">${application?.status === 'submitted' ? 'Анкета сохранена' : (application?.status === 'draft' ? 'Черновик сохранён' : '≈ 5–7 минут')}</em></div>
             <div class="v20-progress"><span id="v20ProgressFill"></span></div>
             <div id="v20Error" class="v20-error" hidden></div>
             <div id="v20ExecutorBody" class="v20-body"></div>
@@ -372,6 +400,15 @@
         document.body.append(overlay);
         document.body.classList.add('v20-lock');
         render();
+        let draftTimer = null;
+        overlay.addEventListener('input', () => {
+          clearTimeout(draftTimer);
+          draftTimer = setTimeout(() => { capture(); saveDraft(true); }, 700);
+        });
+        overlay.addEventListener('change', () => {
+          clearTimeout(draftTimer);
+          draftTimer = setTimeout(() => { capture(); saveDraft(true); }, 250);
+        });
       } catch (e) {
         toast(e?.message || 'Не удалось открыть анкету');
       }
