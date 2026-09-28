@@ -26,3 +26,4 @@ body.v20-lock{overflow:hidden!important}
 .v20-btn{min-height:50px;border-radius:15px;font-family:'Manrope',Arial,sans-serif;font-size:11px;font-weight:900}.v20-btn.ghost{border:1px solid var(--v20-line);background:#15120e;color:#dbc9ad}.v20-btn.gold{border:0;background:linear-gradient(135deg,#d3913d,#f0c978);color:#211609;box-shadow:0 10px 26px rgba(211,145,61,.14)}.v20-btn:disabled{opacity:.55}
 @media(max-width:420px){.v20-application{height:calc(100dvh - env(safe-area-inset-top));border-radius:22px 22px 0 0}.v20-grid.two{grid-template-columns:1fr}.v20-choice-grid,.v20-check-grid{grid-template-columns:1fr 1fr}.v20-step-title h3{font-size:26px}.v20-app-head{padding-top:15px}.v20-footer{grid-template-columns:.65fr 1.35fr}}
 @media(max-width:350px){.v20-choice-grid,.v20-check-grid{grid-template-columns:1fr}.v20-days{grid-template-columns:repeat(4,1fr)}}
+.v20-hint{margin:-8px 0 14px 2px;color:#796e5f;font:600 9px/1.4 'Manrope',Arial,sans-serif}
