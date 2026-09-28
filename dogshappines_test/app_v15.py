@@ -21,6 +21,13 @@ def init_v15():
       ON orders(executor_id, target_executor_id, scheduled_date, scheduled_time, status);
       CREATE INDEX IF NOT EXISTS idx_availability_executor_time
       ON availability(executor_id, start_at, end_at);
+      CREATE TABLE IF NOT EXISTS executor_applications(
+        user_id INTEGER PRIMARY KEY,
+        data_json TEXT NOT NULL DEFAULT '{}',
+        status TEXT NOT NULL DEFAULT 'submitted',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
     """)
     c.commit(); c.close()
 
@@ -198,6 +205,30 @@ class Handler(v14.Handler):
                     "persistent_db": str(base.DB).startswith("/data/"),
                 }
             )
+        if path == "/api/executor/application":
+            user = self.require_user()
+            if not user:
+                return
+            uid = int(user["id"])
+            c = base.conn()
+            row = c.execute(
+                "SELECT data_json,status,created_at,updated_at FROM executor_applications WHERE user_id=?",
+                (uid,),
+            ).fetchone()
+            c.close()
+            if not row:
+                return self.send_json({"data": {}, "status": "new"})
+            try:
+                data = json.loads(row["data_json"] or "{}")
+            except Exception:
+                data = {}
+            return self.send_json({
+                "data": data,
+                "status": row["status"] or "submitted",
+                "created_at": row["created_at"],
+                "updated_at": row["updated_at"],
+            })
+
         if path.startswith("/api/executors/") and path.endswith("/slots"):
             user = self.require_user()
             if not user:
@@ -253,6 +284,161 @@ class Handler(v14.Handler):
 
     def do_POST(self):
         path = urllib.parse.urlparse(self.path).path
+        if path == "/api/executor/application":
+            user = self.require_user()
+            if not user:
+                return
+            uid = int(user["id"])
+            data = self.read_json()
+
+            def s(key, limit=500):
+                return str(data.get(key) or "").strip()[:limit]
+
+            full_name = s("full_name", 120)
+            try:
+                age = int(data.get("age") or 0)
+            except Exception:
+                age = 0
+            primary_activity = s("primary_activity", 80)
+            city = s("city", 80)
+            preferred_areas = s("preferred_areas", 180)
+            phone = s("phone", 30)
+            telegram_username = s("telegram_username", 80)
+            phone_digits = "".join(ch for ch in phone if ch.isdigit())
+
+            services = data.get("services") or []
+            valid_services = sorted({
+                int(x) for x in services
+                if str(x).isdigit() and 1 <= int(x) <= 8
+            })
+            work_days = [
+                str(x) for x in (data.get("work_days") or [])
+                if str(x) in ("Пн","Вт","Ср","Чт","Пт","Сб","Вс")
+            ]
+            try:
+                experience_years = max(0.0, min(50.0, float(data.get("experience_years") or 0)))
+            except Exception:
+                experience_years = 0.0
+            try:
+                simultaneous_pets = max(1, min(20, int(data.get("simultaneous_pets") or 1)))
+            except Exception:
+                simultaneous_pets = 1
+
+            if len(full_name) < 5:
+                return self.send_json({"error": "Укажите ФИО"}, 400)
+            if age < 18 or age > 80:
+                return self.send_json({"error": "Укажите корректный возраст (18+)"}, 400)
+            if not primary_activity:
+                return self.send_json({"error": "Выберите основную деятельность"}, 400)
+            if city not in v14.RUS_CITIES:
+                return self.send_json({"error": "Выберите город из списка"}, 400)
+            if len(preferred_areas) < 2:
+                return self.send_json({"error": "Укажите районы работы"}, 400)
+            if len(phone_digits) < 10:
+                return self.send_json({"error": "Укажите контактный телефон"}, 400)
+            if len(telegram_username) < 2:
+                return self.send_json({"error": "Укажите Telegram"}, 400)
+            if not valid_services:
+                return self.send_json({"error": "Выберите хотя бы одну услугу"}, 400)
+            if not s("animals", 220):
+                return self.send_json({"error": "Укажите, с какими животными работаете"}, 400)
+            if not s("service_location", 120):
+                return self.send_json({"error": "Укажите формат оказания услуг"}, 400)
+            if len(s("emergency_response", 700)) < 10:
+                return self.send_json({"error": "Опишите действия в экстренной ситуации"}, 400)
+            if not work_days or not s("work_hours", 120):
+                return self.send_json({"error": "Заполните график работы"}, 400)
+            if s("standards_agreement", 16) != "Да":
+                return self.send_json({"error": "Для работы нужно согласиться соблюдать стандарты сервиса"}, 400)
+
+            clean = {
+                "full_name": full_name,
+                "age": age,
+                "primary_activity": primary_activity,
+                "city": city,
+                "preferred_areas": preferred_areas,
+                "phone": phone,
+                "telegram_username": telegram_username,
+                "self_employed_status": s("self_employed_status", 40),
+                "self_employed_help": s("self_employed_help", 16),
+                "services": valid_services,
+                "animals": s("animals", 220),
+                "restrictions": s("restrictions", 500),
+                "experience_years": experience_years,
+                "education": s("education", 300),
+                "recent_courses": s("recent_courses", 500),
+                "service_location": s("service_location", 120),
+                "separate_room": s("separate_room", 16),
+                "simultaneous_pets": simultaneous_pets,
+                "contract_ready": s("contract_ready", 16),
+                "urgent_orders": s("urgent_orders", 16),
+                "anxious_experience": s("anxious_experience", 16),
+                "first_aid": s("first_aid", 16),
+                "emergency_response": s("emergency_response", 700),
+                "reports_geo": s("reports_geo", 16),
+                "work_days": work_days,
+                "work_hours": s("work_hours", 120),
+                "weekends": s("weekends", 16),
+                "holidays": s("holidays", 16),
+                "standards_agreement": "Да",
+                "cooperation_priorities": s("cooperation_priorities", 700),
+                "extra_info": s("extra_info", 700),
+                "own_pet": s("own_pet", 220),
+            }
+
+            c = base.conn()
+            v14.upsert_executor(c, user)
+            years_label = (
+                "Без коммерческого опыта"
+                if experience_years == 0
+                else f"{experience_years:g} года опыта"
+            )
+            experience = f"{years_label} · {clean['animals']}"[:160]
+            about_parts = [
+                primary_activity,
+                clean["cooperation_priorities"],
+                clean["extra_info"],
+            ]
+            bio = " · ".join(x for x in about_parts if x)[:800]
+            c.execute(
+                """UPDATE executor_profiles SET
+                   display_name=?,city=?,area=?,experience=?,bio=?,services_json=?,
+                   active=1,onboarding_complete=1
+                   WHERE user_id=?""",
+                (
+                    full_name, city, preferred_areas, experience, bio,
+                    json.dumps(valid_services, ensure_ascii=False), uid,
+                ),
+            )
+            stamp = v14.now_iso()
+            c.execute(
+                """INSERT INTO executor_applications(user_id,data_json,status,created_at,updated_at)
+                   VALUES(?,?,?,?,?)
+                   ON CONFLICT(user_id) DO UPDATE SET
+                     data_json=excluded.data_json,
+                     status=excluded.status,
+                     updated_at=excluded.updated_at""",
+                (
+                    uid,
+                    json.dumps(clean, ensure_ascii=False),
+                    "submitted",
+                    stamp,
+                    stamp,
+                ),
+            )
+            c.execute(
+                "UPDATE users SET role='executor',executor_enabled=1,city=? WHERE id=?",
+                (city, uid),
+            )
+            c.commit()
+            c.close()
+            return self.send_json({
+                "ok": True,
+                "role": "executor",
+                "status": "submitted",
+                "onboarding_complete": True,
+            })
+
         if path.startswith("/api/orders/") and path.endswith("/edit"):
             user = self.require_user()
             if not user:
