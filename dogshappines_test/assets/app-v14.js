@@ -85,7 +85,7 @@
     function money(v){ return `${Number(v||0).toLocaleString('ru-RU')} ₽`; }
     function statusText(s){ return STATUS[s] || s; }
     function statusClass(s){ return `v14-status-${s||'open'}`; }
-    function avatar(src){ return /^https?:|^\/uploads\//i.test(src||'') ? src : `/assets/${src||'sitter-v8.webp'}`; }
+    function avatar(src){ return /^https?:|^\/uploads\//i.test(src||'') ? src : `/assets/${src||'executor-hero-v19.webp'}`; }
     function todayPlus(minutes){
       const d=new Date(Date.now()+minutes*60000);
       return {date:iso(d),time:`${pad(d.getHours())}:${pad(d.getMinutes())}`};
