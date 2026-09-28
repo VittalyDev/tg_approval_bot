@@ -47,3 +47,9 @@
   .v19-role-cta{grid-template-columns:40px minmax(0,1fr);padding:12px}.v19-role-cta>i{width:40px;height:40px}.v19-role-cta button{grid-column:1/-1;width:100%}
   #view-tariffs .tariff-card{padding:12px!important}#view-tariffs .tariff-card h3{font-size:18px!important}#view-tariffs .tariff-price{font-size:19px!important}
 }
+
+.v19-role-switcher{margin:10px 0 14px;padding:5px;display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid rgba(232,189,114,.28);border-radius:18px;background:#0e0c09;box-shadow:0 8px 22px rgba(0,0,0,.18)}
+.v19-role-switcher button{min-width:0;min-height:48px;border:0;border-radius:14px;background:transparent;color:#a99982;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 10px;font:800 10px/1.2 'Manrope',Arial,sans-serif}
+.v19-role-switcher button i{font-size:13px}.v19-role-switcher button.active{background:linear-gradient(135deg,#d69a43,#efc777);color:#211609;box-shadow:0 6px 18px rgba(206,143,58,.18)}
+.v19-role-switcher button:not(.active){border:1px solid rgba(232,189,114,.12)}
+@media(max-width:350px){.v19-role-switcher button{font-size:9px;padding:0 7px}}
