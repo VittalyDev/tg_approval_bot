@@ -291,6 +291,41 @@ class Handler(v14.Handler):
             uid = int(user["id"])
             data = self.read_json()
 
+            if bool(data.get("_draft")):
+                allowed = {
+                    "full_name","age","primary_activity","city","preferred_areas","phone",
+                    "telegram_username","social_url","self_employed_status","self_employed_help",
+                    "services","animals","restrictions","experience_years","education","recent_courses",
+                    "service_location","separate_room","simultaneous_pets","contract_ready","urgent_orders",
+                    "anxious_experience","first_aid","emergency_response","reports_geo","work_days",
+                    "work_hours","weekends","holidays","standards_agreement","cooperation_priorities",
+                    "extra_info","own_pet","_last_step"
+                }
+                draft = {k: data.get(k) for k in allowed if k in data}
+                payload = json.dumps(draft, ensure_ascii=False)
+                if len(payload.encode("utf-8")) > 30000:
+                    return self.send_json({"error": "Анкета слишком большая"}, 400)
+                c = base.conn()
+                row = c.execute(
+                    "SELECT status,created_at FROM executor_applications WHERE user_id=?",
+                    (uid,),
+                ).fetchone()
+                stamp = v14.now_iso()
+                status = "submitted" if row and row["status"] == "submitted" else "draft"
+                created = row["created_at"] if row and row["created_at"] else stamp
+                c.execute(
+                    """INSERT INTO executor_applications(user_id,data_json,status,created_at,updated_at)
+                       VALUES(?,?,?,?,?)
+                       ON CONFLICT(user_id) DO UPDATE SET
+                         data_json=excluded.data_json,
+                         status=excluded.status,
+                         updated_at=excluded.updated_at""",
+                    (uid, payload, status, created, stamp),
+                )
+                c.commit()
+                c.close()
+                return self.send_json({"ok": True, "status": status, "updated_at": stamp})
+
             def s(key, limit=500):
                 return str(data.get(key) or "").strip()[:limit]
 
