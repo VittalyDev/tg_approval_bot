@@ -170,7 +170,7 @@ def init_v14():
     }.items():
         c.execute("UPDATE executor_profiles SET area=? WHERE area=?", (new_area, old_area))
 
-    c.execute("UPDATE executor_profiles SET image='service-walk.webp' WHERE image='sitter-v8.webp'")
+    c.execute("UPDATE executor_profiles SET image='executor-hero-v19.webp' WHERE image='sitter-v8.webp'")
 
     c.commit()
     c.close()
@@ -346,7 +346,7 @@ def executor_rows(c, service_id=None, city=None, requester_id=None):
             "free": True,
             "online": bool(online),
             "sponsored": bool(d.get("sponsored")),
-            "image": d.get("photo_url") or d.get("image") or "sitter-v8.webp",
+            "image": d.get("photo_url") or d.get("image") or "executor-hero-v19.webp",
             "walks": int(d.get("completed") or 0),
             "services": services,
             "about": d.get("bio") or "",
