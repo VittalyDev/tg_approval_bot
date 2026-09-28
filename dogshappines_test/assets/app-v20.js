@@ -44,6 +44,14 @@
     }
     window.closeExecutorApplicationV20 = close;
 
+    function showFormError(message = '') {
+      const box = q('v20Error');
+      if (!box) return;
+      box.textContent = message;
+      box.hidden = !message;
+      if (message) box.scrollIntoView({block:'nearest', behavior:'smooth'});
+    }
+
     function field(id, label, value = '', placeholder = '', type = 'text', attrs = '') {
       return `<label class="v20-field"><span>${esc(label)}</span><input id="${id}" type="${type}" value="${esc(value)}" placeholder="${esc(placeholder)}" ${attrs}></label>`;
     }
@@ -237,6 +245,7 @@
       const host = q('v20ExecutorBody');
       if (!host) return;
       host.innerHTML = stepMarkup(V20.step);
+      showFormError('');
       q('v20StepLabel').textContent = `Шаг ${V20.step + 1} из 6`;
       q('v20ProgressFill').style.width = `${((V20.step + 1) / 6) * 100}%`;
       q('v20Prev').style.visibility = V20.step === 0 ? 'hidden' : 'visible';
@@ -267,7 +276,7 @@
         if (error) {
           V20.step = step;
           render();
-          toast(error);
+          showFormError(error);
           return;
         }
       }
@@ -284,8 +293,10 @@
         await window.showView('executor-home');
         toast(V20.data._editing ? 'Анкета обновлена' : 'Анкета сохранена. Кабинет исполнителя открыт');
       } catch (e) {
-        toast(e?.message || 'Не удалось сохранить анкету');
-        if (btn) { btn.disabled = false; render(); }
+        const message = e?.message || 'Не удалось сохранить анкету';
+        if (btn) btn.disabled = false;
+        render();
+        showFormError(message);
       }
     };
 
@@ -310,7 +321,7 @@
           phone: saved.phone || '',
           telegram_username: saved.telegram_username || '',
           social_url: saved.social_url || '',
-          self_employed_status: saved.self_employed_status || '',
+          self_employed_status: saved.self_employed_status === 'Оформлена' ? 'Да' : (saved.self_employed_status || ''),
           self_employed_help: saved.self_employed_help || '',
           services: saved.services || p.services || [],
           animals: saved.animals || '',
@@ -351,6 +362,7 @@
             </div>
             <div class="v20-progress-meta"><span id="v20StepLabel">Шаг 1 из 6</span><em>${settings?.executor_onboarding_complete ? 'Редактирование профиля' : '≈ 5–7 минут'}</em></div>
             <div class="v20-progress"><span id="v20ProgressFill"></span></div>
+            <div id="v20Error" class="v20-error" hidden></div>
             <div id="v20ExecutorBody" class="v20-body"></div>
             <div class="v20-footer">
               <button id="v20Prev" class="v20-btn ghost" type="button" onclick="v20PrevStep()"><i class="fa-solid fa-arrow-left"></i> Назад</button>
